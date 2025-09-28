@@ -6,18 +6,14 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const sentences: Record<string, { subject: string; object: string }[]> = {
   Kokkaa: [
     { subject: 'Äiti', object: 'Pastaa' },
-    { subject: 'Opettaja', object: 'Kirjeen' },
-    { subject: 'Kokki', object: 'Kahvia' },
+    { subject: 'Kokki', object: 'Pastaa' },
   ],
   Kirjoittaa: [
     { subject: 'Opettaja', object: 'Kirjeen' },
-    { subject: 'Kokki', object: 'Kahvia' },
-    { subject: 'Äiti', object: 'Pastaa' },
   ],
   Syö: [
-    { subject: 'Kokki', object: 'Kahvia' },
     { subject: 'Äiti', object: 'Pastaa' },
-    { subject: 'Opettaja', object: 'Kirjeen' },
+    { subject: 'Opettaja', object: 'Pastaa' },
   ],
 };
 
@@ -37,11 +33,15 @@ export default function PlayScreen() {
 
   useEffect(() => {
     if (isComplete) {
-      const correctPairs = sentences[currentVerb];
-      const isCorrect = correctPairs.some(
-        (pair) => pair.subject === selectedSubject && pair.object === selectedObject
-      );
-      setFeedback(isCorrect ? '✅ Hyvin tehty!' : '❌ Yritä uudelleen');
+      const timer = setTimeout(() => {
+        const correctPairs = sentences[currentVerb];
+        const isCorrect = correctPairs.some(
+          (pair) => pair.subject === selectedSubject && pair.object === selectedObject
+        );
+        setFeedback(isCorrect ? '✅ Hyvin tehty!' : '❌ Yritä uudelleen');
+      }, 800); // Time delay before showing feedback
+
+      return () => clearTimeout(timer); // Cleanup timer if component unmounts or dependencies change
     }
   }, [selectedSubject, selectedObject]);
 
@@ -98,7 +98,7 @@ export default function PlayScreen() {
               </View>
 
               <View style={styles.centerColumn}>
-                <Text style={styles.sectionTitle}>Tekee</Text>
+                <Text style={styles.sectionTitle}>{selectedSubject} {currentVerb.toLowerCase()} {selectedObject?.toLowerCase()}</Text>
                 <View style={styles.verbCard}>
                   <Text style={styles.verbText}>{currentVerb}</Text>
                 </View>
