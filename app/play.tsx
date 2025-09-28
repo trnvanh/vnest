@@ -124,12 +124,45 @@ export default function PlayScreen() {
         ) : (
           <>
             <Text style={styles.title}>{feedback}</Text>
-            <Text style={styles.sentence}>
-              {selectedSubject} {currentVerb.toLowerCase()} {selectedObject?.toLowerCase()}.
-            </Text>
-            <Text style={styles.progress}>
-              Olet suorittanut {currentVerbIndex + 1}/{verbs.length} lauseharjoitusta
-            </Text>
+            <View style={styles.progressContainer}>
+              <Text style={styles.progress}>
+                Olet suorittanut {currentVerbIndex + 1}/{verbs.length} lauseharjoitusta
+              </Text>
+            </View>
+            
+            {/* Progress Bar */}
+            <View style={styles.progressBarContainer}>
+              <View style={styles.progressBarBackground}>
+                <View 
+                  style={[
+                    styles.progressBarFill, 
+                    { width: `${((currentVerbIndex + 1) / verbs.length) * 100}%` }
+                  ]} 
+                />
+              </View>
+            </View>
+
+            {/* Chosen cards displayed */}
+            <View style={styles.row}>
+              <View style={styles.cardColumn}>
+                <View style={styles.card}>
+                  <Text style={styles.cardText}>{selectedSubject}</Text>
+                </View>
+              </View>
+
+              <View style={styles.cardColumn}>
+                <View style={styles.card}>
+                  <Text style={styles.cardText}>{currentVerb}</Text>
+                </View>
+              </View>
+
+              <View style={styles.cardColumn}>
+                <View style={styles.card}>
+                  <Text style={styles.cardText}>{selectedObject}</Text>
+                </View>
+              </View>
+            </View>
+
             {feedback.includes('✅') ? (
               <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
                 <Text style={styles.buttonText}>Jatka</Text>
@@ -176,25 +209,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   verbText: { fontSize: 48, color: '#fff', fontWeight: 'bold' },
-  sentence: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 20,
-    color: '#222',
+  progressContainer: { 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    marginBottom: 40,
+    backgroundColor: '#D9D9D9',
+    padding: 10,
+    borderRadius: 10, 
+    width: '70%',
+    marginHorizontal: 200,
   },
   progress: {
-    fontSize: 20,
+    fontSize: 30,
     textAlign: 'center',
-    marginBottom: 20,
     color: '#555',
+  },
+  progressBarContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+    width: '80%',
+    alignSelf: 'center',
+  },
+  progressBarBackground: {
+    width: '100%',
+    height: 20,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: 'black',
+    borderRadius: 10,
+  },
+  progressText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
   },
   nextButton: {
     backgroundColor: '#04ba77ff',
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 70,
     marginHorizontal: 40,
   },
   resetButton: {
@@ -202,7 +261,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 70,
     marginHorizontal: 40,
   },
   buttonText: { color: '#fff', fontSize: 25, textAlign: 'center', marginTop: 10 },

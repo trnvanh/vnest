@@ -3,9 +3,10 @@ import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const levels = [
-  { id: '1', title: 'Taso 1 - Helppo Verbit', completed: true },
-  { id: '2', title: 'Taso 2 - Välimuotoiset verbit', completed: false },
-  { id: '3', title: 'Taso 3 - Monimutkaiset verbit', completed: false },
+  { id: '1', title: 'Ryhmät 1', completed: true },
+  { id: '2', title: 'Ryhmät 2', completed: false },
+  { id: '3', title: 'Ryhmät 3', completed: false }, 
+  { id: '4', title: 'Ryhmät 4', completed: false },
 ];
 
 export default function ProgressScreen() {
