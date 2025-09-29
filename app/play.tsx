@@ -6,13 +6,17 @@ import {
   GameView,
   LoadingView
 } from '@/components/game';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 import { useWordData } from '@/hooks/useWordData';
+import { getSafeAreaConfig, spacing } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export default function PlayScreen() {
   const router = useRouter();
+  const layout = useResponsiveLayout();
+  const safeArea = getSafeAreaConfig();
   const { 
     wordData, 
     isLoading, 
@@ -159,7 +163,14 @@ export default function PlayScreen() {
   return (
     <>
       <GameHeader />
-      <View style={styles.container}>
+      <View style={[
+        styles.container,
+        layout.isMobile && styles.mobileContainer,
+        {
+          paddingTop: safeArea.paddingTop,
+          paddingBottom: safeArea.paddingBottom,
+        }
+      ]}>
         {showCongrats ? (
           <CongratsView
             currentSetId={currentSetId}
@@ -196,7 +207,11 @@ export default function PlayScreen() {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    padding: 24, 
+    padding: spacing.lg, 
     backgroundColor: '#fff' 
+  },
+  mobileContainer: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
 });

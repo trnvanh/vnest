@@ -1,4 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { isDesktop, responsiveFontSize, spacing } from '@/utils/responsive';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GameCard } from './GameCard';
 import { ProgressBar } from './ProgressBar';
 
@@ -23,11 +25,68 @@ export function FeedbackView({
   onNext,
   onReset
 }: FeedbackViewProps) {
+  const layout = useResponsiveLayout();
   const isCorrect = feedback.includes('✅');
 
+  if (layout.isMobile) {
+    return (
+      <ScrollView style={styles.mobileContainer} showsVerticalScrollIndicator={false}>
+        <Text style={[
+          styles.title, 
+          { fontSize: isDesktop() ? 20 : responsiveFontSize(28) }
+        ]}>
+          {feedback}
+        </Text>
+        
+        <ProgressBar 
+          current={currentVerbIndex + 1}
+          total={totalVerbs}
+        />
+
+        {/* Chosen cards displayed */}
+        <View style={styles.mobileRow}>
+          <View style={styles.cardColumn}>
+            <GameCard text={selectedSubject || ''} />
+          </View>
+
+          <View style={styles.cardColumn}>
+            <GameCard text={currentVerb} />
+          </View>
+
+          <View style={styles.cardColumn}>
+            <GameCard text={selectedObject || ''} />
+          </View>
+        </View>
+
+        {isCorrect ? (
+          <TouchableOpacity 
+            style={[styles.nextButton, styles.mobileButton]} 
+            onPress={onNext}
+          >
+            <Text style={[styles.buttonText, { fontSize: isDesktop() ? 16 : responsiveFontSize(18) }]}>
+              Jatka
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={[styles.resetButton, styles.mobileButton]} 
+            onPress={onReset}
+          >
+            <Text style={[styles.buttonText, { fontSize: isDesktop() ? 16 : responsiveFontSize(18) }]}>
+              Yritä uudelleen
+            </Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    );
+  }
+
+  // Desktop/tablet layout
   return (
-    <>
-      <Text style={styles.title}>{feedback}</Text>
+    <View style={styles.container}>
+      <Text style={[styles.title, { fontSize: isDesktop() ? 24 : responsiveFontSize(40) }]}>
+        {feedback}
+      </Text>
       
       <ProgressBar 
         current={currentVerbIndex + 1}
@@ -51,53 +110,92 @@ export function FeedbackView({
 
       {isCorrect ? (
         <TouchableOpacity style={styles.nextButton} onPress={onNext}>
-          <Text style={styles.buttonText}>Jatka</Text>
+          <Text style={[styles.buttonText, { fontSize: isDesktop() ? 18 : responsiveFontSize(22) }]}>
+            Jatka
+          </Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.resetButton} onPress={onReset}>
-          <Text style={styles.buttonText}>Yritä uudelleen</Text>
+          <Text style={[styles.buttonText, { fontSize: isDesktop() ? 18 : responsiveFontSize(22) }]}>
+            Yritä uudelleen
+          </Text>
         </TouchableOpacity>
       )}
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  mobileContainer: {
+    flex: 1,
+    paddingHorizontal: spacing.md,
+  },
   title: { 
-    fontSize: 48, 
     fontWeight: 'bold', 
     marginBottom: 30, 
-    textAlign: 'center' 
+    textAlign: 'center',
+    color: '#333',
   },
   row: { 
     flexDirection: 'row', 
     justifyContent: 'space-around', 
-    marginBottom: 8 
+    marginBottom: 8,
+    paddingHorizontal: spacing.md,
+  },
+  mobileRow: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
   },
   cardColumn: { 
     flex: 1, 
-    alignItems: 'center' 
+    alignItems: 'center',
+    marginVertical: spacing.sm,
   },
   nextButton: {
-    backgroundColor: '#04ba77ff',
-    paddingVertical: 10,
-    borderRadius: 10,
+    backgroundColor: '#4caf50',
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 70,
+    marginTop: 40,
     marginHorizontal: 40,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   resetButton: {
-    backgroundColor: '#c71910ff',
-    paddingVertical: 10,
-    borderRadius: 10,
+    backgroundColor: '#f44336',
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    marginTop: 70,
+    marginTop: 40,
     marginHorizontal: 40,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  mobileButton: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.xl,
+    paddingVertical: spacing.lg,
   },
   buttonText: { 
     color: '#fff', 
-    fontSize: 25, 
-    textAlign: 'center', 
-    marginTop: 10 
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });
