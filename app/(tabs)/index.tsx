@@ -1,15 +1,25 @@
+import { Verb } from '@/database/schemas';
+import { verbService } from '@/services/verbService';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
+  const [verb, setVerb] = useState<Verb | null>(null);
+
+  useEffect(() => {
+    verbService.getVerbById(2).then(setVerb);
+  }, []);
+
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>VNeST Therapy App</Text>
+      {verb ? <Text>{verb.value}</Text> : <Text>Loading...</Text>}
+      <Text style={styles.title}></Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('/play')}>
         <Text style={styles.buttonText}><FontAwesome name="play" size={48} color="black" /></Text>
