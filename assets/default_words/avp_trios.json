@@ -1,0 +1,11 @@
+[
+    { "id": 0, "verbId": 3, "agentId": 0, "patientId": 1, "isFitting": true },
+    { "id": 1, "verbId": 3, "agentId": 2, "patientId": 2, "isFitting": true },
+    { "id": 2, "verbId": 3, "agentId": 3, "patientId": 4, "isFitting": false },
+    { "id": 3, "verbId": 3, "agentId": 4, "patientId": 5, "isFitting": false },
+    { "id": 4, "verbId": 3, "agentId": 5, "patientId": 3, "isFitting": false },
+    { "id": 5, "verbId": 3, "agentId": 6, "patientId": 6, "isFitting": false },
+    { "id": 6, "verbId": 4, "agentId": 1, "patientId": 1, "isFitting": true },
+    { "id": 7, "verbId": 4, "agentId": 3, "patientId": 5, "isFitting": false },
+    { "id": 8, "verbId": 4, "agentId": 4, "patientId": 6, "isFitting": false }
+]

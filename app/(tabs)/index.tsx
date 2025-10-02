@@ -1,5 +1,5 @@
-import { Verb } from '@/database/schemas';
-import { verbService } from '@/services/verbService';
+import { avpService } from '@/services/avpService';
+import { WordBundle } from '@/services/wordBundle';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -8,17 +8,17 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
-  const [verb, setVerb] = useState<Verb | null>(null);
+  const [wordBundle, setWordBundle] = useState<WordBundle | null>(null);
 
   useEffect(() => {
-    verbService.getVerbById(2).then(setVerb);
+    avpService.GetWordsByVerbId(3).then(setWordBundle);
   }, []);
 
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      {verb ? <Text>{verb.value}</Text> : <Text>Loading...</Text>}
+      {wordBundle ? <Text>{wordBundle.verb.value}{wordBundle.agents[0].value}</Text> : <Text>Loading...</Text>}
       <Text style={styles.title}></Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('/play')}>
