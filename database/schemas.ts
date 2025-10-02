@@ -17,8 +17,8 @@ export type Patient = {
 
 export type AgentVerbPatient_Trio = {
     id:        number;
-    AgentId:   number;
     verbId:    number;
+    agentId:   number;
     patientId: number;
     isFitting: boolean;
 };

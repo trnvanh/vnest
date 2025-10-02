@@ -1,0 +1,14 @@
+[
+  { "id": 0,  "value": "patient 1 fitting" },
+  { "id": 1,  "value": "patient 2 fitting" },
+  { "id": 2,  "value": "patient 3 fitting" },
+  { "id": 3,  "value": "patient 4 not fitting" },
+  { "id": 4,  "value": "patient 5 not fitting" },
+  { "id": 5,  "value": "patient 6 not fitting" },
+  { "id": 6,  "value": "patient 7 not fitting" },
+  { "id": 7,  "value": "patient 8" },
+  { "id": 8,  "value": "patient 9" },
+  { "id": 9,  "value": "patient 10" },
+  { "id": 10, "value": "patient 11" },
+  { "id": 11, "value": "patient 12" }
+]
