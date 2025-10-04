@@ -78,8 +78,8 @@ class SimpleDataService {
         name: "Set 2", 
         level: 2,
         verbs: ["Juoksee", "Kävelee", "Tanssii", "Laulaa", "Piirtää"],
-        subjects: ["Urheilija", "Lapsi", "Vanha nainen", "Mies", "Tanssija", "Taiteilija"],
-        objects: ["maratonia", "koulua", "puistossa", "töihin", "balettia", "laulua", "kuvaa"]
+        subjects: ["Urheilija", "Lapsi", "Vanha nainen", "Mies", "Tanssija"],
+        objects: ["maratonia", "koulua", "puistossa", "töihin", "balettia"]
       },
       {
         id: 3,
