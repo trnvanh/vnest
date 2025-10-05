@@ -1,14 +1,14 @@
 [
-  { "id": 0,  "value": "agent 1 fiting" },
-  { "id": 1,  "value": "agent 2 fitting" },
-  { "id": 2,  "value": "agent 3 fitting" },
-  { "id": 3,  "value": "agent 4 not fitting" },
-  { "id": 4,  "value": "agent 5 not fitting" },
-  { "id": 5,  "value": "agent 6 not fitting" },
-  { "id": 6,  "value": "agent 7 not fitting" },
-  { "id": 7,  "value": "agent 8" },
-  { "id": 8,  "value": "agent 9" },
-  { "id": 9,  "value": "agent 10" },
-  { "id": 10, "value": "agent 11" },
-  { "id": 11, "value": "agent 12" }
+  { "id": 0,  "value": "minä" },
+  { "id": 1,  "value": "sinä" },
+  { "id": 2,  "value": "hän" },
+  { "id": 3,  "value": "me" },
+  { "id": 4,  "value": "te" },
+  { "id": 5,  "value": "he" },
+  { "id": 6,  "value": "opettaja" },
+  { "id": 7,  "value": "opiskelija" },
+  { "id": 8,  "value": "lapsi" },
+  { "id": 9,  "value": "äiti" },
+  { "id": 10, "value": "isä" },
+  { "id": 11, "value": "koira" }
 ]

@@ -1,3 +1,4 @@
+import { useDatabaseWordData } from '@/hooks/useDatabaseWordData';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 import { isDesktop, responsiveFontSize, spacing } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
@@ -12,22 +13,24 @@ interface Set {
 export default function ProgressScreen() {
   const router = useRouter();
   const layout = useResponsiveLayout();
+  const { setCurrentSet } = useDatabaseWordData();
   const [selectedSet, setSelectedSet] = useState<number | null>(null);
 
-  // Add more sets as needed
+  // Finnish verb exercise sets
   const sets: Set[] = [
-    { id: 1, name: "Setti 1" },
-    { id: 2, name: "Setti 2" },
-    { id: 3, name: "Setti 3" },
-    { id: 4, name: "Setti 4" },
+    { id: 1, name: "Setti 1" }, // Reading exercises
+    { id: 2, name: "Setti 2" }, // Writing exercises
+    { id: 3, name: "Setti 3" }, // Buying exercises
+    { id: 4, name: "Setti 4" }, // Eating exercises
+    { id: 5, name: "Sett 5" }, // Drinking exercises
+    { id: 6, name: "Setti 6" }, // Listening exercises
   ];
 
   const handleSetSelect = async (setId: number) => {
     try {
       console.log('Progress screen: Selecting set', setId);
-      // Set the selected set as current in the data service
-      const { dataService } = await import('@/services/simpleDataService');
-      await dataService.setCurrentSet(setId);
+      // Set the selected set as current in the database service
+      await setCurrentSet(setId);
       setSelectedSet(setId);
       console.log('Progress screen: Successfully selected set', setId);
     } catch (error) {

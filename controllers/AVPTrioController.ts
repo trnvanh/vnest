@@ -15,6 +15,14 @@ export class AVPTrioController extends BaseController<AgentVerbPatient_Trio> {
         return shuffled.slice(0, count);
     }
 
+    /**
+     * Retrieves random Agent-Verb-Patient combinations for a specific verb
+     * 
+     * @param verbId - The ID of the verb to get combinations for
+     * @param isFitting - Whether to get correct (true) or incorrect (false) combinations
+     * @param count - Number of combinations to return (default: 1)
+     * @returns Promise<AgentVerbPatient_Trio[]> - Array of matching combinations
+     */
     async GetRandomByVerbIdAndFitting(
         verbId:    number,
         isFitting: boolean,

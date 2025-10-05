@@ -1,12 +1,9 @@
-import { useWordData } from '@/hooks/useWordData';
 import { useState } from 'react';
 import { Alert, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
 export default function SettingsScreen() {
   const [fontSize, setFontSize] = useState<number>(20);
   const [highContrast, setHighContrast] = useState<boolean>(false);
-  
-  const { clearAllData } = useWordData();
 
   // Add handler to increase/decrease font size within limits
   const handleFontSize = (change: number) => {
@@ -16,10 +13,10 @@ export default function SettingsScreen() {
   // Add handler to toggle high contrast mode
   const handleContrast = () => setHighContrast((prev) => !prev);
 
-  const handleReset = () => {
+    const handleReset = () => {
     Alert.alert(
-      'Nollaa kaikki tiedot',
-      'Tämä poistaa kaikki paikalliset tiedot pysyvästi. Haluatko varmasti jatkaa?',
+      'Nollaa tiedot',
+      'Haluatko varmasti nollata kaikki tallennetut tiedot?',
       [
         { text: 'Peruuta', style: 'cancel' },
         { 
@@ -27,7 +24,10 @@ export default function SettingsScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await clearAllData();
+              // Clear localStorage data (for web) - native apps will clear on app restart
+              if (typeof Storage !== 'undefined' && localStorage) {
+                localStorage.removeItem('finnishApp_data');
+              }
               Alert.alert('Valmis', 'Kaikki tiedot on nollattu.');
             } catch (error) {
               Alert.alert('Virhe', 'Tietojen nollaaminen epäonnistui.');
