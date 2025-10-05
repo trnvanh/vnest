@@ -3,6 +3,7 @@ import avp_trios from "@/assets/default_words/avp_trios.json";
 import patients from "@/assets/default_words/patients.json";
 import verbs from "@/assets/default_words/verbs.json";
 import { getRealm } from "@/database/realm";
+import Realm from "realm";
 
 // Unelegant, but Metro Bundler does not allow for dynamic paths in finding the jsons.
 export const jsonMap: Record<string, any> = {
@@ -34,7 +35,7 @@ export abstract class BaseController<T> {
         const rows = await this.loadCSV();
 
         realm.write(() => {
-            rows.forEach(item => realm.create(this.schemaName, item));
+            rows.forEach(item => realm.create(this.schemaName, item, Realm.UpdateMode.Modified));
         });
 
         this.isSeeded = true;

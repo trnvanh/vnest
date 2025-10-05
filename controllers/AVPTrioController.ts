@@ -24,6 +24,16 @@ export class AVPTrioController extends BaseController<AgentVerbPatient_Trio> {
         const filtered = all.filter(e => e.isFitting === isFitting);
         return this.getRandomElements(filtered, count)
     }
+
+    async IsCorrentCombination(
+        agentId:   number,
+        verbId:    number,
+        patientId: number
+    ): Promise<boolean> {
+        const all = await this.getAllByVerbId(verbId);
+        const filtered = all.filter(e => e.isFitting === true && e.agentId === agentId && e.patientId === patientId);
+        return filtered.length >= 1;
+    }
 }
 
 export const avpTrioController = new AVPTrioController();

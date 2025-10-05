@@ -6,8 +6,10 @@ import {
   GameView,
   LoadingView
 } from '@/components/game';
+import { Agent, Patient, Verb } from '@/database/schemas';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 import { useWordData } from '@/hooks/useWordData';
+import { avpService } from '@/services/avpService';
 import { getSafeAreaConfig, spacing } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -25,12 +27,16 @@ export default function PlayScreen() {
     isCorrectCombination,
     initializeManually
   } = useWordData();
-  const [currentVerbIndex, setCurrentVerbIndex] = useState(0);
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [selectedObject, setSelectedObject] = useState<string | null>(null);
+  const [currentVerbIndex, setCurrentVerbIndex] = useState(3);
+  const [selectedSubject, setSelectedSubject] = useState<Agent | null>(null);
+  const [selectedObject, setSelectedObject] = useState<Patient | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showCongrats, setShowCongrats] = useState(false);
-  const [currentSetId, setCurrentSetId] = useState<number>(1);
+  const [currentSetId, setCurrentSetId] = useState<number>(0);
+
+  const [verbs, setVerbs] = useState<Verb[]>([]);
+  const [subjects, setSubjects] = useState<Agent[]>([]);
+  const [objects, setObjects] = useState<Patient[]>([]);
 
   // Initialize data on component mount
   useEffect(() => {
@@ -44,14 +50,15 @@ export default function PlayScreen() {
         console.error('Error initializing play screen data:', error);
       }
     };
+
+    loadWords();
     
     initializeData();
   }, [initializeManually]);  // All hooks must be called before any conditional logic
   useEffect(() => {
     if (wordData && selectedSubject && selectedObject) {
       const timer = setTimeout(async () => {
-        const currentVerb = wordData.verbs[currentVerbIndex];
-        const isCorrect = await isCorrectCombination(selectedSubject, currentVerb, selectedObject);
+        const isCorrect = await avpService.IsCorrectCombination(selectedSubject, verbs[0], selectedObject);
         setFeedback(isCorrect ? '✅ Hyvin tehty!' : '❌ Yritä uudelleen');
       }, 800); // Time delay before showing feedback
 
@@ -59,9 +66,10 @@ export default function PlayScreen() {
     }
   }, [selectedSubject, selectedObject, wordData, currentVerbIndex, isCorrectCombination]);
 
-  const handleSelect = (type: 'subject' | 'object', value: string) => {
-    if (type === 'subject') setSelectedSubject(value);
-    if (type === 'object') setSelectedObject(value);
+  const handleSelect = (word: Agent | Patient) => {
+    if      (word.type === "Agent")  {setSelectedSubject(word);}
+    else if (word.type == "Patient") {setSelectedObject(word)}
+    else throw new TypeError (`Expects type Agent or Patient, but ${typeof word} was given.`) 
   };
 
   const handleNext = () => {
@@ -91,6 +99,16 @@ export default function PlayScreen() {
     setSelectedObject(null);
     setFeedback(null);
     setShowCongrats(false);
+  };
+
+  const loadWords = async () => {
+    const result = await avpService.GetWordsByVerbId(3);
+      if (!result) return;
+
+    const { verb, agents, patients } = result;
+    setVerbs([verb]);
+    setSubjects(agents);
+    setObjects(patients)
   };
 
   const handleNextSet = async () => {
@@ -143,22 +161,21 @@ export default function PlayScreen() {
     );
   }
 
-  const { verbs, subjects, objects } = wordData;
-  const currentVerb = verbs[currentVerbIndex];
+  const currentVerb = verbs[0];
 
   // Additional safety check
-  if (!currentVerb || !verbs.length || !subjects.length || !objects.length) {
-    return (
-      <>
-        <GameHeader />
-        <ErrorView 
-          error="No word data available"
-          onRetry={refreshData}
-          onForceReload={initializeManually}
-        />
-      </>
-    );
-  }
+  // if (!currentVerb || !verbs.length || !subjects.length || !objects.length) {
+  //   return (
+  //     <>
+  //       <GameHeader />
+  //       <ErrorView 
+  //         error="No word data available"
+  //         onRetry={refreshData}
+  //         onForceReload={initializeManually}
+  //       />
+  //     </>
+  //   );
+  // }
 
   return (
     <>

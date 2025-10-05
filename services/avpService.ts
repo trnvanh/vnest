@@ -2,7 +2,7 @@ import { agentController } from "@/controllers/AgentController";
 import { avpTrioController } from "@/controllers/AVPTrioController";
 import { patientController } from "@/controllers/PatientController";
 import { verbController } from "@/controllers/VerbController";
-import { Agent, Patient } from "@/database/schemas";
+import { Agent, Patient, Verb } from "@/database/schemas";
 import { WordBundle } from "./wordBundle";
 
 export const avpService = {
@@ -29,5 +29,10 @@ export const avpService = {
         )
 
         return { verb, agents, patients };
+    },
+
+    IsCorrectCombination: async (agent: Agent, verb: Verb, patient: Patient): Promise<boolean> => {
+        if (agent === null || verb === null || patient === null) return false;
+        return avpTrioController.IsCorrentCombination(agent.id, verb.id, patient.id);
     }
 };
