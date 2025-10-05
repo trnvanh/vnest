@@ -1,3 +1,24 @@
+/**
+ * Main Play Screen for VN-EST App
+ * 
+ * This screen handles the core gameplay where users learn Finnish sentence structure
+ * by combining subjects (agents), verbs, and objects (patients) to form correct sentences.
+ * 
+ * Features:
+ * - Interactive card-based sentence building
+ * - Real-time feedback on combinations
+ * - Progress tracking through different verb sets
+ * - Responsive design for mobile and desktop
+ * - Set progression and completion handling
+ * 
+ * Game Flow:
+ * 1. Display current verb and available subject/object cards
+ * 2. User selects subject and object cards
+ * 3. System validates the combination against Finnish grammar rules
+ * 4. Provide immediate feedback (correct/incorrect)
+ * 5. Progress to next combination or next set
+ */
+
 import {
   CongratsView,
   ErrorView,
@@ -6,8 +27,8 @@ import {
   GameView,
   LoadingView
 } from '@/components/game';
+import { useDatabaseWordData } from '@/hooks/useDatabaseWordData';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import { useWordData } from '@/hooks/useWordData';
 import { getSafeAreaConfig, spacing } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -17,47 +38,63 @@ export default function PlayScreen() {
   const router = useRouter();
   const layout = useResponsiveLayout();
   const safeArea = getSafeAreaConfig();
+  
+  // Database integration hook - manages Finnish language data and validation
   const { 
-    wordData, 
-    isLoading, 
-    error, 
-    refreshData,
-    isCorrectCombination,
-    initializeManually
-  } = useWordData();
-  const [currentVerbIndex, setCurrentVerbIndex] = useState(0);
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [selectedObject, setSelectedObject] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [showCongrats, setShowCongrats] = useState(false);
-  const [currentSetId, setCurrentSetId] = useState<number>(1);
+    wordData,                 // Current verb set data (subjects, objects, current verb)
+    isLoading,               // Loading state during data fetching
+    error,                   // Error state for data operations
+    refreshData,             // Function to refresh current data set
+    isCorrectCombination,    // Function to validate Finnish sentence combinations
+    nextVerb,                // Function to move to next verb in sequence
+    setCurrentSet            // Function to change learning set (verb focus)
+  } = useDatabaseWordData();
+  
+  // Game state management
+  const [currentVerbIndex, setCurrentVerbIndex] = useState(0);              // Index for current verb exercise
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);  // Currently selected subject card
+  const [selectedObject, setSelectedObject] = useState<string | null>(null);    // Currently selected object card
+  const [feedback, setFeedback] = useState<string | null>(null);                // Feedback message (correct/incorrect)
+  const [showCongrats, setShowCongrats] = useState(false);                     // Show completion screen
+  const [currentSetId, setCurrentSetId] = useState<number>(1);                 // Current learning set (1-6)
 
-  // Initialize data on component mount
+  // Initialize with current set on mount
   useEffect(() => {
-    console.log('Play screen mounted, initializing data...');
-    
-    const initializeData = async () => {
-      try {
-        await initializeManually();
-        console.log('Play screen data initialization complete');
-      } catch (error) {
-        console.error('Error initializing play screen data:', error);
-      }
-    };
-    
-    initializeData();
-  }, [initializeManually]);  // All hooks must be called before any conditional logic
+    setCurrentSet(currentSetId);
+  }, [setCurrentSet, currentSetId]);
+
+  // Data will be initialized automatically by the hook
   useEffect(() => {
-    if (wordData && selectedSubject && selectedObject) {
+    if (wordData && selectedSubject && selectedObject && wordData.currentVerb) {
       const timer = setTimeout(async () => {
-        const currentVerb = wordData.verbs[currentVerbIndex];
-        const isCorrect = await isCorrectCombination(selectedSubject, currentVerb, selectedObject);
+        // Use the current verb from the word data (the one the exercise is focused on)
+        const isCorrect = await isCorrectCombination(selectedSubject, wordData.currentVerb!.value, selectedObject);
         setFeedback(isCorrect ? '✅ Hyvin tehty!' : '❌ Yritä uudelleen');
+        
+        // If correct, automatically move to next verb after a short delay
+        if (isCorrect) {
+          setTimeout(async () => {
+            await handleCorrectAnswer();
+          }, 1500); // Show success message for 1.5 seconds, then move to next verb
+        }
       }, 800); // Time delay before showing feedback
 
       return () => clearTimeout(timer); // Cleanup timer if component unmounts or dependencies change
     }
-  }, [selectedSubject, selectedObject, wordData, currentVerbIndex, isCorrectCombination]);
+  }, [selectedSubject, selectedObject, wordData, isCorrectCombination]);
+
+  const handleCorrectAnswer = async () => {
+    try {
+      // Move to next verb and refresh data
+      await nextVerb();
+      // Reset selections for the new verb
+      setSelectedSubject(null);
+      setSelectedObject(null);
+      setFeedback(null);
+    } catch (error) {
+      console.error('Error moving to next verb:', error);
+    }
+  };
 
   const handleSelect = (type: 'subject' | 'object', value: string) => {
     if (type === 'subject') setSelectedSubject(value);
@@ -95,14 +132,11 @@ export default function PlayScreen() {
 
   const handleNextSet = async () => {
     try {
-      const { dataService } = await import('@/services/simpleDataService');
-      const wordSets = await dataService.getWordSets();
       const nextSetId = currentSetId + 1;
       
-      // Check if next set exists
-      const nextSetExists = wordSets.some(set => set.id === nextSetId);
-      if (nextSetExists) {
-        await dataService.setCurrentSet(nextSetId);
+      // We have 6 sets (mapped to verb data in database service)
+      if (nextSetId <= 6) {
+        await setCurrentSet(nextSetId);
         setCurrentSetId(nextSetId);
         setCurrentVerbIndex(0);
         setSelectedSubject(null);
@@ -137,14 +171,17 @@ export default function PlayScreen() {
         <ErrorView 
           error={error}
           onRetry={refreshData}
-          onForceReload={initializeManually}
+          onForceReload={refreshData}
         />
       </>
     );
   }
 
-  const { verbs, subjects, objects } = wordData;
-  const currentVerb = verbs[currentVerbIndex];
+  const { verbs, subjects, objects, currentVerb } = wordData;
+  
+  // Map objects to strings for component compatibility
+  const subjectStrings = subjects.map(s => s.value);
+  const objectStrings = objects.map(o => o.value);
 
   // Additional safety check
   if (!currentVerb || !verbs.length || !subjects.length || !objects.length) {
@@ -154,7 +191,7 @@ export default function PlayScreen() {
         <ErrorView 
           error="No word data available"
           onRetry={refreshData}
-          onForceReload={initializeManually}
+          onForceReload={refreshData}
         />
       </>
     );
@@ -180,9 +217,9 @@ export default function PlayScreen() {
           />
         ) : !feedback ? (
           <GameView
-            subjects={subjects}
-            objects={objects}
-            currentVerb={currentVerb}
+            subjects={subjectStrings}
+            objects={objectStrings}
+            currentVerb={currentVerb?.value || ''}
             selectedSubject={selectedSubject}
             selectedObject={selectedObject}
             onSelect={handleSelect}
@@ -194,7 +231,7 @@ export default function PlayScreen() {
             totalVerbs={verbs.length}
             selectedSubject={selectedSubject}
             selectedObject={selectedObject}
-            currentVerb={currentVerb}
+            currentVerb={currentVerb.value}
             onNext={handleNext}
             onReset={handleReset}
           />

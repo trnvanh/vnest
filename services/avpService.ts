@@ -12,7 +12,14 @@ export const avpService = {
 
         const [fitting] =      await avpTrioController.GetRandomByVerbIdAndFitting(id, true, 1);
         const not_fitting =    await avpTrioController.GetRandomByVerbIdAndFitting(id, false, 2);
-        const selected_trios = [fitting, ...not_fitting];
+        
+        // Filter out undefined values
+        const selected_trios = [fitting, ...not_fitting].filter(trio => trio !== undefined);
+        
+        if (selected_trios.length === 0) {
+            console.warn(`No AVP trio data found for verbId: ${id}`);
+            return null;
+        }
 
         const agents: Agent[] = await Promise.all(
             selected_trios.map(async trio => {

@@ -1,25 +1,28 @@
-import { avpService } from '@/services/avpService';
-import { WordBundle } from '@/services/wordBundle';
+import { useDatabaseWordData } from '@/hooks/useDatabaseWordData';
 import Entypo from '@expo/vector-icons/Entypo';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
-  const [wordBundle, setWordBundle] = useState<WordBundle | null>(null);
-
-  useEffect(() => {
-    avpService.GetWordsByVerbId(3).then(setWordBundle);
-  }, []);
+  const { wordData, isLoading, error } = useDatabaseWordData();
 
   const router = useRouter();
 
   return (
     <View style={styles.container}>
-      {wordBundle ? <Text>{wordBundle.verb.value}{wordBundle.agents[0].value}</Text> : <Text>Loading...</Text>}
-      <Text style={styles.title}></Text>
+      {isLoading ? (
+        <Text>Loading database...</Text>
+      ) : error ? (
+        <Text>Error: {error}</Text>
+      ) : wordData?.currentVerb ? (
+        <Text>Current verb: {wordData.currentVerb.value} (Subjects: {wordData.subjects.length}, Objects: {wordData.objects.length})</Text>
+      ) : (
+        <Text>No data available</Text>
+      )}
+      <Text style={styles.title}>VN-EST App</Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('/play')}>
         <Text style={styles.buttonText}><FontAwesome name="play" size={48} color="black" /></Text>
