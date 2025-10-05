@@ -1,5 +1,5 @@
 /**
- * Main Play Screen for VN-EST App
+ * Main Exercise Screen for VN-EST App
  * 
  * This screen handles the core gameplay where users learn Finnish sentence structure
  * by combining subjects (agents), verbs, and objects (patients) to form correct sentences.
@@ -7,14 +7,13 @@
  * Features:
  * - Interactive card-based sentence building
  * - Real-time feedback on combinations
- * - Progress tracking through different verb sets
  * - Responsive design for mobile and desktop
  * - Set progression and completion handling
  * 
  * Game Flow:
- * 1. Display current verb and available subject/object cards
+ * 1. Display current verb and available subject/object cards (in a selected set)
  * 2. User selects subject and object cards
- * 3. System validates the combination against Finnish grammar rules
+ * 3. System validates the combination
  * 4. Provide immediate feedback (correct/incorrect)
  * 5. Progress to next combination or next set
  */
@@ -39,7 +38,7 @@ export default function PlayScreen() {
   const layout = useResponsiveLayout();
   const safeArea = getSafeAreaConfig();
   
-  // Database integration hook - manages Finnish language data and validation
+  // Database integration hook - manages language data and validation
   const { 
     wordData,                 // Current verb set data (subjects, objects, current verb)
     isLoading,               // Loading state during data fetching
@@ -56,7 +55,7 @@ export default function PlayScreen() {
   const [selectedObject, setSelectedObject] = useState<string | null>(null);    // Currently selected object card
   const [feedback, setFeedback] = useState<string | null>(null);                // Feedback message (correct/incorrect)
   const [showCongrats, setShowCongrats] = useState(false);                     // Show completion screen
-  const [currentSetId, setCurrentSetId] = useState<number>(1);                 // Current learning set (1-6)
+  const [currentSetId, setCurrentSetId] = useState<number>(1);                 // Current learning set
 
   // Initialize with current set on mount
   useEffect(() => {

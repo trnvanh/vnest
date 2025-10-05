@@ -1,5 +1,5 @@
 /**
- * Web-specific Database Manager for VN-EST App
+ * Web Database Manager for VN-EST App
  * 
  * This version is automatically selected by Metro bundler for web platforms.
  * It exclusively uses WebStorageAdapter to avoid Realm imports that would

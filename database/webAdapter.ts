@@ -2,8 +2,7 @@
  * Web Storage Adapter for VN-EST App
  * 
  * This adapter provides localStorage-based data persistence for web browsers.
- * It implements the DatabaseAdapter interface and loads authentic Finnish
- * language data from JSON files.
+ * It implements the DatabaseAdapter interface and loads from JSON files.
  * 
  * Features:
  * - localStorage persistence across browser sessions
@@ -23,7 +22,7 @@ import { Agent, AgentVerbPatient_Trio, Patient, Verb } from './schemas';
 
 /**
  * Web storage implementation using localStorage
- * 
+ *  
  * Uses dynamic imports to load Finnish language data from JSON files,
  * ensuring compatibility with web bundlers and providing the same
  * authentic Finnish language content across all platforms.

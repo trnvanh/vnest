@@ -18,12 +18,12 @@ export default function ProgressScreen() {
 
   // Finnish verb exercise sets
   const sets: Set[] = [
-    { id: 1, name: "Lukeminen" }, // Reading exercises
-    { id: 2, name: "Kirjoittaminen" }, // Writing exercises
-    { id: 3, name: "Ostaminen" }, // Buying exercises
-    { id: 4, name: "Syöminen" }, // Eating exercises
-    { id: 5, name: "Juominen" }, // Drinking exercises
-    { id: 6, name: "Kuunteleminen" }, // Listening exercises
+    { id: 1, name: "Setti 1" }, // Reading exercises
+    { id: 2, name: "Setti 2" }, // Writing exercises
+    { id: 3, name: "Setti 3" }, // Buying exercises
+    { id: 4, name: "Setti 4" }, // Eating exercises
+    { id: 5, name: "Sett 5" }, // Drinking exercises
+    { id: 6, name: "Setti 6" }, // Listening exercises
   ];
 
   const handleSetSelect = async (setId: number) => {

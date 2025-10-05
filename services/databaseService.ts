@@ -1,7 +1,7 @@
 /**
  * Database Service for VN-EST App
  * 
- * This service provides a unified interface for managing Finnish language learning data.
+ * This service provides a unified interface for managing data.
  * It handles verbs, agents (subjects), patients (objects), and their combinations
  * to create meaningful Finnish sentence exercises.
  * 
@@ -42,7 +42,7 @@ export interface DatabaseWordData {
  * Main database service class for managing Finnish language learning data
  */
 class DatabaseService {
-  private currentVerbId: number = 0; // Start with verbId 0 ("luen" - reading exercises)
+  private currentVerbId: number = 0; // Start with verbId 0
   private currentSetId: number = 1;  // Current learning set (1-6)
 
   async initialize(): Promise<void> {
@@ -74,12 +74,12 @@ class DatabaseService {
     this.currentSetId = setId;
     // Map sets to verbIds - now we have data for all verbs (0-5)
     const verbIdMap: { [key: number]: number } = {
-      1: 0, // Set 1: "luen" (reading exercises)
-      2: 1, // Set 2: "kirjoitan" (writing exercises)
-      3: 2, // Set 3: "ostan" (buying exercises)
-      4: 3, // Set 4: "syön" (eating exercises)
-      5: 4, // Set 5: "juon" (drinking exercises)
-      6: 5, // Set 6: "kuuntelen" (listening exercises)
+      1: 0, // Set 1
+      2: 1, // Set 2
+      3: 2, // Set 3
+      4: 3, // Set 4
+      5: 4, // Set 5
+      6: 5, // Set 6
     };
     this.currentVerbId = verbIdMap[setId] || 0; // Default to 0 if setId not found
   }

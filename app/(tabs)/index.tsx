@@ -22,7 +22,7 @@ export default function HomeScreen() {
       ) : (
         <Text>No data available</Text>
       )}
-      <Text style={styles.title}>VN-EST App</Text>
+      <Text style={styles.title}>VNeST App</Text>
 
       <TouchableOpacity style={styles.button} onPress={() => router.push('/play')}>
         <Text style={styles.buttonText}><FontAwesome name="play" size={48} color="black" /></Text>
