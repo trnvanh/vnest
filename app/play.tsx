@@ -26,8 +26,10 @@ import {
   GameView,
   LoadingView
 } from '@/components/game';
-import { useDatabaseWordData } from '@/hooks/useDatabaseWordData';
+import { Agent, Patient, Verb } from '@/database/schemas';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { useWordData } from '@/hooks/useWordData';
+import { avpService } from '@/services/avpService';
 import { getSafeAreaConfig, spacing } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -40,34 +42,45 @@ export default function PlayScreen() {
   
   // Database integration hook - manages language data and validation
   const { 
-    wordData,                 // Current verb set data (subjects, objects, current verb)
-    isLoading,               // Loading state during data fetching
-    error,                   // Error state for data operations
-    refreshData,             // Function to refresh current data set
-    isCorrectCombination,    // Function to validate Finnish sentence combinations
-    nextVerb,                // Function to move to next verb in sequence
-    setCurrentSet            // Function to change learning set (verb focus)
-  } = useDatabaseWordData();
-  
-  // Game state management
-  const [currentVerbIndex, setCurrentVerbIndex] = useState(0);              // Index for current verb exercise
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);  // Currently selected subject card
-  const [selectedObject, setSelectedObject] = useState<string | null>(null);    // Currently selected object card
-  const [feedback, setFeedback] = useState<string | null>(null);                // Feedback message (correct/incorrect)
-  const [showCongrats, setShowCongrats] = useState(false);                     // Show completion screen
-  const [currentSetId, setCurrentSetId] = useState<number>(1);                 // Current learning set
+    wordData, 
+    isLoading, 
+    error, 
+    refreshData,
+    isCorrectCombination,
+    initializeManually
+  } = useWordData();
+  const [currentVerbIndex, setCurrentVerbIndex] = useState(3);
+  const [selectedSubject, setSelectedSubject] = useState<Agent | null>(null);
+  const [selectedObject, setSelectedObject] = useState<Patient | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [showCongrats, setShowCongrats] = useState(false);
+  const [currentSetId, setCurrentSetId] = useState<number>(0);
 
-  // Initialize with current set on mount
+  const [verbs, setVerbs] = useState<Verb[]>([]);
+  const [subjects, setSubjects] = useState<Agent[]>([]);
+  const [objects, setObjects] = useState<Patient[]>([]);
+
+  // Initialize data on component mount
   useEffect(() => {
-    setCurrentSet(currentSetId);
-  }, [setCurrentSet, currentSetId]);
+    console.log('Play screen mounted, initializing data...');
+    
+    const initializeData = async () => {
+      try {
+        await initializeManually();
+        console.log('Play screen data initialization complete');
+      } catch (error) {
+        console.error('Error initializing play screen data:', error);
+      }
+    };
 
-  // Data will be initialized automatically by the hook
+    loadWords();
+    
+    initializeData();
+  }, [initializeManually]);  // All hooks must be called before any conditional logic
   useEffect(() => {
     if (wordData && selectedSubject && selectedObject && wordData.currentVerb) {
       const timer = setTimeout(async () => {
-        // Use the current verb from the word data (the one the exercise is focused on)
-        const isCorrect = await isCorrectCombination(selectedSubject, wordData.currentVerb!.value, selectedObject);
+        const isCorrect = await avpService.IsCorrectCombination(selectedSubject, verbs[0], selectedObject);
         setFeedback(isCorrect ? '✅ Hyvin tehty!' : '❌ Yritä uudelleen');
         
         // If correct, automatically move to next verb after a short delay
@@ -82,22 +95,10 @@ export default function PlayScreen() {
     }
   }, [selectedSubject, selectedObject, wordData, isCorrectCombination]);
 
-  const handleCorrectAnswer = async () => {
-    try {
-      // Move to next verb and refresh data
-      await nextVerb();
-      // Reset selections for the new verb
-      setSelectedSubject(null);
-      setSelectedObject(null);
-      setFeedback(null);
-    } catch (error) {
-      console.error('Error moving to next verb:', error);
-    }
-  };
-
-  const handleSelect = (type: 'subject' | 'object', value: string) => {
-    if (type === 'subject') setSelectedSubject(value);
-    if (type === 'object') setSelectedObject(value);
+  const handleSelect = (word: Agent | Patient) => {
+    if      (word.type === "Agent")  {setSelectedSubject(word);}
+    else if (word.type == "Patient") {setSelectedObject(word)}
+    else throw new TypeError (`Expects type Agent or Patient, but ${typeof word} was given.`) 
   };
 
   const handleNext = () => {
@@ -127,6 +128,16 @@ export default function PlayScreen() {
     setSelectedObject(null);
     setFeedback(null);
     setShowCongrats(false);
+  };
+
+  const loadWords = async () => {
+    const result = await avpService.GetWordsByVerbId(3);
+      if (!result) return;
+
+    const { verb, agents, patients } = result;
+    setVerbs([verb]);
+    setSubjects(agents);
+    setObjects(patients)
   };
 
   const handleNextSet = async () => {
@@ -176,25 +187,21 @@ export default function PlayScreen() {
     );
   }
 
-  const { verbs, subjects, objects, currentVerb } = wordData;
-  
-  // Map objects to strings for component compatibility
-  const subjectStrings = subjects.map(s => s.value);
-  const objectStrings = objects.map(o => o.value);
+  const currentVerb = verbs[0];
 
   // Additional safety check
-  if (!currentVerb || !verbs.length || !subjects.length || !objects.length) {
-    return (
-      <>
-        <GameHeader />
-        <ErrorView 
-          error="No word data available"
-          onRetry={refreshData}
-          onForceReload={refreshData}
-        />
-      </>
-    );
-  }
+  // if (!currentVerb || !verbs.length || !subjects.length || !objects.length) {
+  //   return (
+  //     <>
+  //       <GameHeader />
+  //       <ErrorView 
+  //         error="No word data available"
+  //         onRetry={refreshData}
+  //         onForceReload={initializeManually}
+  //       />
+  //     </>
+  //   );
+  // }
 
   return (
     <>

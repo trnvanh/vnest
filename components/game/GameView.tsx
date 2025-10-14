@@ -1,15 +1,16 @@
+import { Agent, Patient, Verb } from '@/database/schemas';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 import { isDesktop, responsiveFontSize, spacing } from '@/utils/responsive';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { GameCard } from './GameCard';
 
 interface GameViewProps {
-  subjects: string[];
-  objects: string[];
-  currentVerb: string;
-  selectedSubject: string | null;
-  selectedObject: string | null;
-  onSelect: (type: 'subject' | 'object', value: string) => void;
+  subjects: Agent[];
+  objects: Patient[];
+  currentVerb: Verb | null;
+  selectedSubject: Agent | null;
+  selectedObject: Patient | null;
+  onSelect: (word: Agent | Patient) => void;
 }
 
 export function GameView({ 
@@ -31,13 +32,13 @@ export function GameView({
         </Text>
         
         <Text style={[styles.mobileSentence, { fontSize: isDesktop() ? 16 : responsiveFontSize(18) }]}>
-          {selectedSubject || '[Kuka]'} {currentVerb?.toLowerCase() || '[verb]'} {selectedObject?.toLowerCase() || '[mitä]'}
+          {selectedSubject?.value || '[Kuka]'} {currentVerb?.value.toLowerCase() || '[verb]'} {selectedObject?.value.toLowerCase() || '[mitä]'}
         </Text>
 
         {/* Verb Card */}
         <View style={styles.mobileVerbSection}>
           <GameCard 
-            text={currentVerb}
+            text={currentVerb?.value ?? ""}
             variant="verb"
           />
         </View>
@@ -50,10 +51,10 @@ export function GameView({
           <View style={styles.mobileCardGrid}>
             {subjects.map((subject) => (
               <GameCard
-                key={subject}
-                text={subject}
-                isSelected={selectedSubject === subject}
-                onPress={() => onSelect('subject', subject)}
+                key={subject.id}
+                text={subject.value}
+                isSelected={selectedSubject?.id === subject.id}
+                onPress={() => onSelect(subject)}
                 style={styles.mobileCard}
               />
             ))}
@@ -68,10 +69,10 @@ export function GameView({
           <View style={styles.mobileCardGrid}>
             {objects.map((object) => (
               <GameCard
-                key={object}
-                text={object}
-                isSelected={selectedObject === object}
-                onPress={() => onSelect('object', object)}
+                key={object.id}
+                text={object.value}
+                isSelected={selectedObject?.id === object.id}
+                onPress={() => onSelect(object)}
                 style={styles.mobileCard}
               />
             ))}
@@ -94,20 +95,20 @@ export function GameView({
           </Text>
           {subjects.map((subject) => (
             <GameCard
-              key={subject}
-              text={subject}
-              isSelected={selectedSubject === subject}
-              onPress={() => onSelect('subject', subject)}
+              key={subject.id}
+              text={subject.value}
+              isSelected={selectedSubject?.id === subject.id}
+              onPress={() => onSelect(subject)}
             />
           ))}
         </View>
 
         <View style={styles.centerColumn}>
           <Text style={[styles.sectionTitle, { fontSize: layout.isDesktop ? 14 : responsiveFontSize(20) }]}>
-            {selectedSubject || '[Kuka]'} {currentVerb?.toLowerCase() || '[verb]'} {selectedObject?.toLowerCase() || '[mitä]'}
+            {selectedSubject?.value || '[Kuka]'} {currentVerb?.value.toLowerCase() || '[verb]'} {selectedObject?.value.toLowerCase() || '[mitä]'}
           </Text>
           <GameCard 
-            text={currentVerb}
+            text={currentVerb?.value ?? ""}
             variant="verb"
           />
         </View>
@@ -118,10 +119,10 @@ export function GameView({
           </Text>
           {objects.map((object) => (
             <GameCard
-              key={object}
-              text={object}
-              isSelected={selectedObject === object}
-              onPress={() => onSelect('object', object)}
+              key={object.id}
+              text={object.value}
+              isSelected={selectedObject?.id === object.id}
+              onPress={() => onSelect(object)}
             />
           ))}
         </View>

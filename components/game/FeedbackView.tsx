@@ -1,3 +1,4 @@
+import { Agent, Patient, Verb } from '@/database/schemas';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 import { isDesktop, responsiveFontSize, spacing } from '@/utils/responsive';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,9 +9,9 @@ interface FeedbackViewProps {
   feedback: string;
   currentVerbIndex: number;
   totalVerbs: number;
-  selectedSubject: string | null;
-  selectedObject: string | null;
-  currentVerb: string;
+  selectedSubject: Agent | null;
+  selectedObject: Patient | null;
+  currentVerb: Verb | null;
   onNext: () => void;
   onReset: () => void;
 }
@@ -46,15 +47,15 @@ export function FeedbackView({
         {/* Chosen cards displayed */}
         <View style={styles.mobileRow}>
           <View style={styles.cardColumn}>
-            <GameCard text={selectedSubject || ''} />
+            <GameCard text={selectedSubject?.value || ''} />
           </View>
 
           <View style={styles.cardColumn}>
-            <GameCard text={currentVerb} />
+            <GameCard text={currentVerb?.value ?? ""} />
           </View>
 
           <View style={styles.cardColumn}>
-            <GameCard text={selectedObject || ''} />
+            <GameCard text={selectedObject?.value || ''} />
           </View>
         </View>
 
@@ -96,15 +97,15 @@ export function FeedbackView({
       {/* Chosen cards displayed */}
       <View style={styles.row}>
         <View style={styles.cardColumn}>
-          <GameCard text={selectedSubject || ''} />
+          <GameCard text={selectedSubject?.value || ''} />
         </View>
 
         <View style={styles.cardColumn}>
-          <GameCard text={currentVerb} />
+          <GameCard text={currentVerb?.value ?? ""} />
         </View>
 
         <View style={styles.cardColumn}>
-          <GameCard text={selectedObject || ''} />
+          <GameCard text={selectedObject?.value || ''} />
         </View>
       </View>
 

@@ -2,7 +2,8 @@ import agents from "@/assets/default_words/agents.json";
 import avp_trios from "@/assets/default_words/avp_trios.json";
 import patients from "@/assets/default_words/patients.json";
 import verbs from "@/assets/default_words/verbs.json";
-import { database } from "@/database";
+import { getRealm } from "@/database/realm";
+import Realm from "realm";
 
 /**
  * JSON data mapping for static imports
@@ -76,6 +77,10 @@ export abstract class BaseController<T> {
                 await database.insert<T>(this.schemaName, item);
             }
         }
+
+        realm.write(() => {
+            rows.forEach(item => realm.create(this.schemaName, item, Realm.UpdateMode.Modified));
+        });
 
         this.isSeeded = true;
     }
