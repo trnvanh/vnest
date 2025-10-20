@@ -10,7 +10,9 @@ import {
 let realmInstance: Realm | null = null;
 
 export const realmConfig: Realm.Configuration = {
-    schema: [AgentSchema, VerbSchema, PatientSchema, AgentVerbPatient_Trio_Schema]
+    path:   "default.realm",
+    schema: [AgentSchema, VerbSchema, PatientSchema, AgentVerbPatient_Trio_Schema],
+    
 };
 
 export const getRealm = async (): Promise<Realm> => {

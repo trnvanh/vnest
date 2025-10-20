@@ -1,0 +1,11 @@
+[
+  { "verb": "verb_1", "pairs": [["subject_A","object_A"], ["subject_B","object_B"]] },
+  { "verb": "verb_2", "pairs": [["subject_A","object_A"], ["subject_B","object_B"]] },
+  { "verb": "verb_3", "pairs": [["subject_A","object_A"], ["subject_B","object_B"]] },
+  { "verb": "verb_4", "pairs": [["subject_A","object_A"], ["subject_B","object_B"], ["subject_C","object_C"]] },
+  { "verb": "verb_5", "pairs": [["subject_A","object_A"], ["subject_B","object_B"], ["subject_C","object_C"]] },
+  { "verb": "verb_6", "pairs": [["subject_A","object_A"], ["subject_B","object_B"], ["subject_C","object_C"]] },
+  { "verb": "verb_7", "pairs": [["subject_A","object_A"], ["subject_B","object_B"], ["subject_C","object_C"], ["subject_D","object_D"]] },
+  { "verb": "verb_8", "pairs": [["subject_A","object_A"], ["subject_B","object_B"], ["subject_C","object_C"], ["subject_D","object_D"]] },
+  { "verb": "verb_9", "pairs": [["subject_A","object_A"], ["subject_B","object_B"], ["subject_C","object_C"], ["subject_D","object_D"]] }
+]

@@ -27,8 +27,8 @@ import {
   LoadingView
 } from '@/components/game';
 import { Agent, Patient, Verb } from '@/database/schemas';
+import { useDatabaseWordData } from '@/hooks/useDatabaseWordData';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import { useWordData } from '@/hooks/useWordData';
 import { avpService } from '@/services/avpService';
 import { getSafeAreaConfig, spacing } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
@@ -47,8 +47,9 @@ export default function PlayScreen() {
     error, 
     refreshData,
     isCorrectCombination,
-    initializeManually
-  } = useWordData();
+    nextVerb,
+    setCurrentSet
+  } = useDatabaseWordData();
   const [currentVerbIndex, setCurrentVerbIndex] = useState(3);
   const [selectedSubject, setSelectedSubject] = useState<Agent | null>(null);
   const [selectedObject, setSelectedObject] = useState<Patient | null>(null);
@@ -62,21 +63,9 @@ export default function PlayScreen() {
 
   // Initialize data on component mount
   useEffect(() => {
-    console.log('Play screen mounted, initializing data...');
-    
-    const initializeData = async () => {
-      try {
-        await initializeManually();
-        console.log('Play screen data initialization complete');
-      } catch (error) {
-        console.error('Error initializing play screen data:', error);
-      }
-    };
-
-    loadWords();
-    
-    initializeData();
-  }, [initializeManually]);  // All hooks must be called before any conditional logic
+    console.log('Play screen mounted, loading data...');
+    loadWords()
+  },[]);
   useEffect(() => {
     if (wordData && selectedSubject && selectedObject && wordData.currentVerb) {
       const timer = setTimeout(async () => {
@@ -94,6 +83,19 @@ export default function PlayScreen() {
       return () => clearTimeout(timer); // Cleanup timer if component unmounts or dependencies change
     }
   }, [selectedSubject, selectedObject, wordData, isCorrectCombination]);
+
+  const handleCorrectAnswer = async () => {
+    try {
+      // Move to next verb and refresh data
+      await nextVerb();
+      // Reset selections for the new verb
+      setSelectedSubject(null);
+      setSelectedObject(null);
+      setFeedback(null);
+    } catch (error) {
+      console.error('Error moving to next verb:', error);
+    }
+  };
 
   const handleSelect = (word: Agent | Patient) => {
     if      (word.type === "Agent")  {setSelectedSubject(word);}
@@ -189,20 +191,6 @@ export default function PlayScreen() {
 
   const currentVerb = verbs[0];
 
-  // Additional safety check
-  // if (!currentVerb || !verbs.length || !subjects.length || !objects.length) {
-  //   return (
-  //     <>
-  //       <GameHeader />
-  //       <ErrorView 
-  //         error="No word data available"
-  //         onRetry={refreshData}
-  //         onForceReload={initializeManually}
-  //       />
-  //     </>
-  //   );
-  // }
-
   return (
     <>
       <GameHeader />
@@ -223,9 +211,9 @@ export default function PlayScreen() {
           />
         ) : !feedback ? (
           <GameView
-            subjects={subjectStrings}
-            objects={objectStrings}
-            currentVerb={currentVerb?.value || ''}
+            subjects={subjects}
+            objects={objects}
+            currentVerb={currentVerb}
             selectedSubject={selectedSubject}
             selectedObject={selectedObject}
             onSelect={handleSelect}
@@ -237,7 +225,7 @@ export default function PlayScreen() {
             totalVerbs={verbs.length}
             selectedSubject={selectedSubject}
             selectedObject={selectedObject}
-            currentVerb={currentVerb.value}
+            currentVerb={currentVerb}
             onNext={handleNext}
             onReset={handleReset}
           />
