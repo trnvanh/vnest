@@ -3,13 +3,22 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { seedRealm } from '@/database/seedRealm';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useEffect } from 'react';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
+  useEffect(() => {
+    (async () => {
+      try { await seedRealm(); }
+      catch (e) { console.error("Error seeding data: ", e); }
+    })();
+  }, []);
+
   const colorScheme = useColorScheme();
 
   return (
