@@ -45,18 +45,8 @@ export class WebStorageAdapter implements DatabaseAdapter {
    * from JSON files and storing it in localStorage for persistence.
    */
   async initialize(): Promise<void> {
-    // Clear any existing localStorage data to ensure fresh data load
-    localStorage.removeItem('finnishApp_data');
-    
     // Load fresh data from JSON files
     await this.seedData();
-    
-    console.log('WebStorageAdapter: Initialized with Finnish language data', {
-      agents: this.data.Agent?.length || 0,
-      verbs: this.data.Verb?.length || 0,
-      patients: this.data.Patient?.length || 0,
-      combinations: this.data.AgentVerbPatient_Trio?.length || 0
-    });
   }
 
   /**
@@ -74,27 +64,26 @@ export class WebStorageAdapter implements DatabaseAdapter {
   private async seedData(): Promise<void> {
     try {
       // Use dynamic imports for web compatibility - static imports can cause bundling issues
-      const [agentsModule, verbsModule, patientsModule, triosModule] = await Promise.all([
-        import('@/assets/default_words/agents.json'),
-        import('@/assets/default_words/verbs.json'),
-        import('@/assets/default_words/patients.json'),
-        import('@/assets/default_words/avp_trios.json')
+      const [agentsData, verbsData, patientsData, avpData] = await Promise.all([
+        import('@/assets/word_data/agents.json'),
+        import('@/assets/word_data/verbs.json'),
+        import('@/assets/word_data/patients.json'),
+        import('@/assets/word_data/avp_trios.json')
       ]);
       
       // Extract data from modules (handle both default exports and direct exports)
-      const agents = agentsModule.default || agentsModule;
-      const verbs = verbsModule.default || verbsModule;
-      const patients = patientsModule.default || patientsModule;
-      const avp_trios = triosModule.default || triosModule;
+      const agents = agentsData.default || agentsData;
+      const verbs = verbsData.default || verbsData;
+      const patients = patientsData.default || patientsData;
+      const avp_trios = avpData.default || avpData;
       
-      // Load the authentic Finnish language data into memory
+      // Load the authentic Finnish language data into memory and add type properties
       this.data = {
-        Agent: (agents as Agent[]) || [],
-        Patient: (patients as Patient[]) || [],
-        Verb: (verbs as Verb[]) || [],
-        AgentVerbPatient_Trio: (avp_trios as AgentVerbPatient_Trio[]) || []
+        Agent: (agents as any[]).map(agent => ({ ...agent, type: 'Agent' })) || [],
+        Patient: (patients as any[]).map(patient => ({ ...patient, type: 'Patient' })) || [],
+        Verb: (verbs as any[]).map(verb => ({ ...verb, type: 'Verb' })) || [],
+        AgentVerbPatient_Trio: (avp_trios as any[]).map(trio => ({ ...trio, type: 'AgentVerbPatient_Trio' })) || []
       };
-      
     } catch (error) {
       console.error('WebStorageAdapter: Failed to load JSON files:', error);
       // Fallback to empty arrays if JSON loading fails

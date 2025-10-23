@@ -26,7 +26,7 @@ export class RealmAdapter implements DatabaseAdapter {
   async query<T>(collection: string, filter?: any): Promise<T[]> {
     await this.initialize();
     
-    const results = this.realm!.objects<T>(collection);
+    const results = this.realm!.objects(collection);
     if (!filter) return Array.from(results);
     
     // Convert filter to Realm query string if needed
@@ -41,7 +41,7 @@ export class RealmAdapter implements DatabaseAdapter {
   async findById<T>(collection: string, id: number): Promise<T | null> {
     await this.initialize();
     
-    const result = this.realm!.objectForPrimaryKey<T>(collection, id as any);
+    const result = this.realm!.objectForPrimaryKey(collection, id as any);
     return result || null;
   }
 
@@ -59,7 +59,7 @@ export class RealmAdapter implements DatabaseAdapter {
   async update<T>(collection: string, id: number, updateData: Partial<T>): Promise<T | null> {
     await this.initialize();
     
-    const existing = this.realm!.objectForPrimaryKey<T>(collection, id as any);
+    const existing = this.realm!.objectForPrimaryKey(collection, id as any);
     if (!existing) return null;
     
     this.realm!.write(() => {

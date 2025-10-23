@@ -26,13 +26,11 @@ import {
   GameView,
   LoadingView
 } from '@/components/game';
-import { Agent, Patient, Verb } from '@/database/schemas';
 import { useDatabaseWordData } from '@/hooks/useDatabaseWordData';
+import { useExercise } from '@/hooks/useExercise';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import { avpService } from '@/services/avpService';
 import { getSafeAreaConfig, spacing } from '@/utils/responsive';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export default function PlayScreen() {
@@ -43,126 +41,52 @@ export default function PlayScreen() {
   // Database integration hook - manages language data and validation
   const { 
     wordData, 
-    isLoading, 
+    isLoading: isDatabaseLoading, 
     error, 
     refreshData,
-    isCorrectCombination,
-    nextVerb,
     setCurrentSet
   } = useDatabaseWordData();
-  const [currentVerbIndex, setCurrentVerbIndex] = useState(3);
-  const [selectedSubject, setSelectedSubject] = useState<Agent | null>(null);
-  const [selectedObject, setSelectedObject] = useState<Patient | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [showCongrats, setShowCongrats] = useState(false);
-  const [currentSetId, setCurrentSetId] = useState<number>(0);
+  
+  // Exercise management hook - handles all exercise logic
+  const {
+    // Exercise state
+    currentVerb,
+    displaySubjects,
+    displayObjects,
+    selectedSubject,
+    selectedObject,
+    feedback,
+    showCongrats,
+    isLoading: isExerciseLoading,
+    currentSetId,
+    displayCorrectAnswers,
+    
+    // Exercise actions
+    handleSelect,
+    handleNext,
+    handleReset,
+    handleReplay,
+    handleNextSet,
+  } = useExercise();
 
-  const [verbs, setVerbs] = useState<Verb[]>([]);
-  const [subjects, setSubjects] = useState<Agent[]>([]);
-  const [objects, setObjects] = useState<Patient[]>([]);
+  // Combined loading state
+  const isLoading = isDatabaseLoading || isExerciseLoading;
 
-  // Initialize data on component mount
-  useEffect(() => {
-    console.log('Play screen mounted, loading data...');
-    loadWords()
-  },[]);
-  useEffect(() => {
-    if (wordData && selectedSubject && selectedObject && wordData.currentVerb) {
-      const timer = setTimeout(async () => {
-        const isCorrect = await avpService.IsCorrectCombination(selectedSubject, verbs[0], selectedObject);
-        setFeedback(isCorrect ? '✅ Hyvin tehty!' : '❌ Yritä uudelleen');
-        
-        // If correct, automatically move to next verb after a short delay
-        if (isCorrect) {
-          setTimeout(async () => {
-            await handleCorrectAnswer();
-          }, 1500); // Show success message for 1.5 seconds, then move to next verb
-        }
-      }, 800); // Time delay before showing feedback
-
-      return () => clearTimeout(timer); // Cleanup timer if component unmounts or dependencies change
-    }
-  }, [selectedSubject, selectedObject, wordData, isCorrectCombination]);
-
-  const handleCorrectAnswer = async () => {
-    try {
-      // Move to next verb and refresh data
-      await nextVerb();
-      // Reset selections for the new verb
-      setSelectedSubject(null);
-      setSelectedObject(null);
-      setFeedback(null);
-    } catch (error) {
-      console.error('Error moving to next verb:', error);
-    }
+  // Handle navigation to progress screen
+  const handleNavigateToProgress = () => {
+    router.push('/progress');
   };
 
-  const handleSelect = (word: Agent | Patient) => {
-    if      (word.type === "Agent")  {setSelectedSubject(word);}
-    else if (word.type == "Patient") {setSelectedObject(word)}
-    else throw new TypeError (`Expects type Agent or Patient, but ${typeof word} was given.`) 
-  };
-
-  const handleNext = () => {
-    setSelectedSubject(null);
-    setSelectedObject(null);
-    setFeedback(null);
-    if (wordData) {
-      const nextIndex = currentVerbIndex + 1;
-      if (nextIndex >= wordData.verbs.length) {
-        // Set completed! Show congrats view for navigation to next set
-        setShowCongrats(true);
-      } else {
-        setCurrentVerbIndex(nextIndex);
-      }
-    }
-  };
-
-  const handleReset = () => {
-    setSelectedSubject(null);
-    setSelectedObject(null);
-    setFeedback(null);
-  };
-
-  const handleReplay = () => {
-    setCurrentVerbIndex(0);
-    setSelectedSubject(null);
-    setSelectedObject(null);
-    setFeedback(null);
-    setShowCongrats(false);
-  };
-
-  const loadWords = async () => {
-    const result = await avpService.GetWordsByVerbId(3);
-      if (!result) return;
-
-    const { verb, agents, patients } = result;
-    setVerbs([verb]);
-    setSubjects(agents);
-    setObjects(patients)
-  };
-
-  const handleNextSet = async () => {
-    try {
-      const nextSetId = currentSetId + 1;
-      
-      // For example if we have 6 sets (mapped to verb data in database service)
-      if (nextSetId <= 6) {
-        await setCurrentSet(nextSetId);
-        setCurrentSetId(nextSetId);
-        setCurrentVerbIndex(0);
-        setSelectedSubject(null);
-        setSelectedObject(null);
-        setFeedback(null);
-        setShowCongrats(false);
-        // Refresh data to load new set
-        await refreshData();
-      } else {
-        // No more sets, go back to progress screen
-        router.push('/progress');
-      }
-    } catch (error) {
-      console.error('Error going to next set:', error);
+  // Handle next set with database service integration
+  const handleNextSetWithDatabase = async () => {
+    await handleNextSet(() => {
+      router.push('/progress');
+    });
+    
+    // Also update the database service
+    if (currentSetId <= 6) {
+      await setCurrentSet(currentSetId + 1);
+      await refreshData();
     }
   };
 
@@ -189,8 +113,6 @@ export default function PlayScreen() {
     );
   }
 
-  const currentVerb = verbs[0];
-
   return (
     <>
       <GameHeader />
@@ -207,12 +129,12 @@ export default function PlayScreen() {
             currentSetId={currentSetId}
             verbCount={wordData?.verbs.length}
             onReplay={handleReplay}
-            onNextSet={handleNextSet}
+            onNextSet={handleNextSetWithDatabase}
           />
         ) : !feedback ? (
           <GameView
-            subjects={subjects}
-            objects={objects}
+            subjects={displaySubjects}
+            objects={displayObjects}
             currentVerb={currentVerb}
             selectedSubject={selectedSubject}
             selectedObject={selectedObject}
@@ -221,11 +143,11 @@ export default function PlayScreen() {
         ) : (
           <FeedbackView
             feedback={feedback}
-            currentVerbIndex={currentVerbIndex}
-            totalVerbs={verbs.length}
+            totalVerbs={wordData?.verbs.length || 0}
             selectedSubject={selectedSubject}
             selectedObject={selectedObject}
             currentVerb={currentVerb}
+            correctAnswers={displayCorrectAnswers}
             onNext={handleNext}
             onReset={handleReset}
           />

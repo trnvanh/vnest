@@ -7,22 +7,22 @@ import { ProgressBar } from './ProgressBar';
 
 interface FeedbackViewProps {
   feedback: string;
-  currentVerbIndex: number;
   totalVerbs: number;
   selectedSubject: Agent | null;
   selectedObject: Patient | null;
   currentVerb: Verb | null;
+  correctAnswers: number;
   onNext: () => void;
   onReset: () => void;
 }
 
 export function FeedbackView({
   feedback,
-  currentVerbIndex,
   totalVerbs,
   selectedSubject,
   selectedObject,
   currentVerb,
+  correctAnswers,
   onNext,
   onReset
 }: FeedbackViewProps) {
@@ -40,8 +40,9 @@ export function FeedbackView({
         </Text>
         
         <ProgressBar 
-          current={currentVerbIndex + 1}
-          total={totalVerbs}
+          current={correctAnswers}
+          total={10}
+          label={`Eteneminen: ${correctAnswers}/10 oikein`}
         />
 
         {/* Chosen cards displayed */}
@@ -90,8 +91,9 @@ export function FeedbackView({
       </Text>
       
       <ProgressBar 
-        current={currentVerbIndex + 1}
-        total={totalVerbs}
+        current={correctAnswers}
+        total={10}
+        label={`Eteneminen: ${correctAnswers}/10 oikein`}
       />
 
       {/* Chosen cards displayed */}

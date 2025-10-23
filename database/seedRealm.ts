@@ -1,60 +1,34 @@
-import data from '@/assets/seeding_data/finnish_v1.json';
+import agentsData from '@/assets/word_data/agents.json';
+import avpTriosData from '@/assets/word_data/avp_trios.json';
+import patientsData from '@/assets/word_data/patients.json';
+import verbsData from '@/assets/word_data/verbs.json';
 import { deleteFile } from 'realm';
 import { getRealm } from "./realm";
 
 export async function seedRealm() {
     deleteFile({ path: "default.realm" });
-    console.log("Putting in data now")
 
     const realm = await getRealm();
 
-    const agentMap =   new Map<string, number>();
-    const patientMap = new Map<string, number>();
-
-    let verbId = -1, agentId = -1, patientId = -1, trioId = -1;
-
     realm.write(() => {
-        for (const entry of data) {
-            const { verb, pairs } = entry;
-            
-            verbId++;
-            realm.create("Verb", { 
-                id:    verbId, 
-                value: verb, 
-                type:  "Verb" });
+        // Insert Agents (subjects)
+        for (const agent of agentsData) {
+            realm.create("Agent", agent);
+        }
 
-            for (const [agentValue, patientValue] of pairs) {
+        // Insert Verbs
+        for (const verb of verbsData) {
+            realm.create("Verb", verb);
+        }
 
-                if(!agentMap.has(agentValue)) {
-                    agentId++;
-                    agentMap.set(agentValue, agentId);
-                    realm.create("Agent", {
-                        id:    agentId,
-                        value: agentValue,
-                        type:  "Agent"});
-                }
+        // Insert Patients (objects)
+        for (const patient of patientsData) {
+            realm.create("Patient", patient);
+        }
 
-                if (!patientMap.has(patientValue)) {
-                    patientId++;
-                    patientMap.set(patientValue, patientId);
-                    realm.create("Patient", {
-                        id:    patientId,
-                        value: patientValue,
-                        type:  "Patient" });
-                }
-
-                trioId++;
-                realm.create("AgentVerbPatient_Trio", { 
-                    id:        trioId, 
-                    verbId:    verbId, 
-                    agentId:   agentMap.get(agentValue)!, 
-                    patientId: patientMap.get(patientValue)!, 
-                    isFitting: true, 
-                    type:      "AgentVerbPatient_Trio" });
-            }
+        // Insert AgentVerbPatient_Trio combinations
+        for (const trio of avpTriosData) {
+            realm.create("AgentVerbPatient_Trio", trio);
         }
     });
-
-    console.log("Application seeded data succesfully");
-    console.log(`Added ${verbId} Verbs, ${agentId} distince Subjects and ${patientId} distinct Objects in ${trioId} pairs.`)
 }

@@ -1,5 +1,6 @@
 import { getCardDimensions, getVerbCardDimensions } from '@/utils/responsive';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useRef } from 'react';
+import { LayoutRectangle, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface GameCardProps {
   text: string;
@@ -7,6 +8,9 @@ interface GameCardProps {
   onPress?: () => void;
   variant?: 'default' | 'verb';
   style?: object;
+  cardId?: string | number;
+  parentRef?: React.RefObject<View | null>;
+  onLayout?: (cardId: string | number, layout: LayoutRectangle) => void;
 }
 
 export function GameCard({ 
@@ -14,18 +18,39 @@ export function GameCard({
   isSelected = false, 
   onPress, 
   variant = 'default',
-  style 
+  style,
+  cardId,
+  parentRef,
+  onLayout
 }: GameCardProps) {
   const isVerb = variant === 'verb';
   const cardDimensions = isVerb ? getVerbCardDimensions() : getCardDimensions();
+  const cardRef = useRef<any>(null);
   
   // Get margin values separately for verb cards
   const verbMarginVertical = isVerb && 'marginVertical' in cardDimensions 
     ? cardDimensions.marginVertical 
     : 6;
+
+  const handleLayout = (event: any) => {
+    if (cardId && onLayout && parentRef?.current) {
+      // Use measureLayout to get position relative to parent container
+      setTimeout(() => {
+        cardRef.current?.measureLayout(
+          parentRef.current,
+          (x: number, y: number, width: number, height: number) => {
+            console.log(`Card ${cardId} relative position: x=${x}, y=${y}, w=${width}, h=${height}`);
+            onLayout(cardId, { x, y, width, height });
+          },
+          (error: any) => console.error('measureLayout error:', error)
+        );
+      }, 50); // Small delay to ensure layout is complete
+    }
+  };
   
   return (
     <TouchableOpacity
+      ref={cardRef}
       style={[
         styles.baseCard,
         {
@@ -38,6 +63,7 @@ export function GameCard({
         style
       ]}
       onPress={onPress}
+      onLayout={handleLayout}
       disabled={!onPress}
       activeOpacity={0.7}
     >

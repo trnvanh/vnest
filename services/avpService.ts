@@ -3,39 +3,49 @@ import { avpTrioController } from "@/controllers/AVPTrioController";
 import { patientController } from "@/controllers/PatientController";
 import { verbController } from "@/controllers/VerbController";
 import { Agent, Patient, Verb } from "@/database/schemas";
-import { WordBundle } from "./wordBundle";
+
+export interface WordBundle {
+    verb: Verb;
+    agents: Agent[];
+    patients: Patient[];
+}
 
 export const avpService = {
-    GetWordsByVerbId: async (id: number): Promise<WordBundle | null> => {
-        const verb = await verbController.getById(id);
-        if (!verb) return null;
+    // Simplified random generation with different verbs
+    GetRandomWordsForSet: async (setId: number): Promise<WordBundle | null> => {
+        try {
+            // Get all verbs and pick a random one
+            const verbs = await verbController.getAll();
+            if (verbs.length === 0) return null;
+            
+            const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+            
+            // Get 3 random unique subjects
+            const allAgents = await agentController.getAll();
+            const shuffledAgents = [...allAgents].sort(() => Math.random() - 0.5);
+            const selectedAgents = shuffledAgents.slice(0, 3);
+            
+            // Get 3 random unique objects
+            const allPatients = await patientController.getAll();
+            const shuffledPatients = [...allPatients].sort(() => Math.random() - 0.5);
+            const selectedPatients = shuffledPatients.slice(0, 3);
 
-        const [fitting] =      await avpTrioController.GetRandomByVerbIdAndFitting(id, true, 1);
-        const not_fitting =    await avpTrioController.GetRandomByVerbIdAndFitting(id, false, 2);
-        
-        // Filter out undefined values
-        const selected_trios = [fitting, ...not_fitting].filter(trio => trio !== undefined);
-        
-        if (selected_trios.length === 0) {
-            console.warn(`No AVP trio data found for verbId: ${id}`);
+            console.log(`Generated: Verb=${randomVerb.value}, Subjects=[${selectedAgents.map(a => a.value).join(', ')}], Objects=[${selectedPatients.map(p => p.value).join(', ')}]`);
+
+            return { 
+                verb: randomVerb, 
+                agents: selectedAgents, 
+                patients: selectedPatients 
+            };
+        } catch (error) {
+            console.error('Error generating random words:', error);
             return null;
         }
+    },
 
-        const agents: Agent[] = await Promise.all(
-            selected_trios.map(async trio => {
-                const agent = await agentController.getById(trio.agentId);
-                return agent!;
-            })
-        )
-
-        const patients: Patient[] = await Promise.all(
-            selected_trios.map(async trio => {
-                const patient = await patientController.getById(trio.patientId);
-                return patient!;
-            })
-        )
-
-        return { verb, agents, patients };
+    GetWordsByVerbId: async (id: number): Promise<WordBundle | null> => {
+        // For backward compatibility, but we'll prefer the new method
+        return await avpService.GetRandomWordsForSet(1); // Default to set 1
     },
 
     IsCorrectCombination: async (agent: Agent, verb: Verb, patient: Patient): Promise<boolean> => {

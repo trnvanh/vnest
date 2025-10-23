@@ -22,17 +22,12 @@ export default function ProgressScreen() {
     { id: 2, name: "Setti 2" }, 
     { id: 3, name: "Setti 3" }, 
     { id: 4, name: "Setti 4" }, 
-    { id: 5, name: "Sett 5" }, 
-    { id: 6, name: "Setti 6" }, 
   ];
 
-  const handleSetSelect = async (setId: number) => {
+  const selectSet = async (setId: number) => {
     try {
-      console.log('Progress screen: Selecting set', setId);
-      // Set the selected set as current in the database service
-      await setCurrentSet(setId);
       setSelectedSet(setId);
-      console.log('Progress screen: Successfully selected set', setId);
+      await setCurrentSet(setId);
     } catch (error) {
       console.error('Error selecting set:', error);
     }
@@ -40,7 +35,6 @@ export default function ProgressScreen() {
 
   const handlePlaySet = () => {
     if (selectedSet) {
-      console.log('Progress screen: Navigating to play with set', selectedSet);
       router.push('/play');
     }
   };
@@ -65,7 +59,7 @@ export default function ProgressScreen() {
               layout.isMobile ? styles.mobileSetCard : styles.setCard,
               selectedSet === set.id && styles.selectedSet
             ]}
-            onPress={() => handleSetSelect(set.id)}
+            onPress={() => selectSet(set.id)}
             activeOpacity={0.8}
           >
             <Text style={[

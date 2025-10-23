@@ -1,6 +1,5 @@
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Stack, useRouter } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 
 interface GameHeaderProps {
   title?: string;
@@ -16,7 +15,7 @@ export function GameHeader({ title = '' }: GameHeaderProps) {
         title,
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.replace('/')} style={{ marginLeft: 10 }}>
-            <IconSymbol size={35} name="house.fill" color="black" />
+            <Text style={{ fontSize: 24 }}>🏠</Text>
           </TouchableOpacity>
         ),
       }}

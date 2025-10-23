@@ -45,9 +45,9 @@ class DatabaseService {
   private currentVerbId: number = 0; // Start with verbId 0
   private currentSetId: number = 1;  // Current learning set (1-6)
 
-  async initialize(): Promise<void> {
-    console.log('Initializing database service...');
-    // Controllers will handle seeding automatically
+  async initialize() {
+    // Controllers handle their own database initialization
+    // This method is kept for interface compatibility
   }
 
   async getAllVerbs(): Promise<Verb[]> {
@@ -72,16 +72,19 @@ class DatabaseService {
 
   async setCurrentSet(setId: number): Promise<void> {
     this.currentSetId = setId;
-    // Map sets to verbIds - now we have data for all verbs (0-5)
-    const verbIdMap: { [key: number]: number } = {
-      1: 0, // Set 1
-      2: 1, // Set 2
-      3: 2, // Set 3
-      4: 3, // Set 4
-      5: 4, // Set 5
-      6: 5, // Set 6
+    // Map sets to verbIds - each set can have multiple verbs for variety
+    const verbIdMap: { [key: number]: number[] } = {
+      1: [0, 1], // Set 1: verbs 0 and 1
+      2: [2, 3], // Set 2: verbs 2 and 3  
+      3: [4, 5], // Set 3: verbs 4 and 5
+      4: [0, 2], // Set 4: verbs 0 and 2 (mix)
+      5: [1, 3], // Set 5: verbs 1 and 3 (mix)
+      6: [4, 0], // Set 6: verbs 4 and 0 (mix)
     };
-    this.currentVerbId = verbIdMap[setId] || 0; // Default to 0 if setId not found
+    
+    const availableVerbs = verbIdMap[setId] || [0];
+    // Start with the first verb in the set
+    this.currentVerbId = availableVerbs[0];
   }
 
   async getCurrentWordBundle() {
@@ -163,15 +166,24 @@ class DatabaseService {
   }
 
   async getRandomVerb(): Promise<Verb | null> {
-    const verbs = await this.getAllVerbs();
-    if (verbs.length === 0) return null;
+    // Get available verbs for the current set
+    const verbIdMap: { [key: number]: number[] } = {
+      1: [0, 1], // Set 1: verbs 0 and 1
+      2: [2, 3], // Set 2: verbs 2 and 3  
+      3: [4, 5], // Set 3: verbs 4 and 5
+      4: [0, 2], // Set 4: verbs 0 and 2 (mix)
+      5: [1, 3], // Set 5: verbs 1 and 3 (mix)
+      6: [4, 0], // Set 6: verbs 4 and 0 (mix)
+    };
     
-    const randomIndex = Math.floor(Math.random() * verbs.length);
-    const selectedVerb = verbs[randomIndex];
-    await this.setCurrentVerb(selectedVerb.id);
+    const availableVerbIds = verbIdMap[this.currentSetId] || [0];
     
-    console.log(`Selected random verb: ${selectedVerb.value} (id: ${selectedVerb.id})`);
-    return selectedVerb;
+    // Select random verb from available verbs in current set
+    const randomIndex = Math.floor(Math.random() * availableVerbIds.length);
+    const selectedVerbId = availableVerbIds[randomIndex];
+    
+    await this.setCurrentVerb(selectedVerbId);
+    return await this.getCurrentVerb();
   }
 
   async getNextVerb(): Promise<Verb | null> {
@@ -183,7 +195,6 @@ class DatabaseService {
     await this.setCurrentVerb(nextVerbId);
     
     const nextVerb = await this.getCurrentVerb();
-    console.log(`Moved to next verb: ${nextVerb?.value} (id: ${nextVerbId})`);
     return nextVerb;
   }
 }
