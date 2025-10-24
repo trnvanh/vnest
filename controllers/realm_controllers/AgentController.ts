@@ -1,4 +1,4 @@
-import { Agent } from '../database/schemas';
+import { Agent } from '../../database/schemas';
 import { BaseController } from './BaseController';
 
 export class AgentController extends BaseController<Agent> {

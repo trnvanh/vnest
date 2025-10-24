@@ -1,7 +1,8 @@
-import { AgentVerbPatient_Trio } from '../database/schemas';
+import { AgentVerbPatient_Trio } from '../../database/schemas';
+import { IAVPTrioController } from '../interfaces/IAVPTrioController';
 import { BaseController } from './BaseController';
 
-export class AVPTrioController extends BaseController<AgentVerbPatient_Trio> {
+export class AVPTrioController extends BaseController<AgentVerbPatient_Trio> implements IAVPTrioController {
     schemaName =   'AgentVerbPatient_Trio';
     jsonFileName = 'avp_trios';
 
@@ -44,4 +45,4 @@ export class AVPTrioController extends BaseController<AgentVerbPatient_Trio> {
     }
 }
 
-export const avpTrioController = new AVPTrioController();
+export const avpTrioController_realm = new AVPTrioController();

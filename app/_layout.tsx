@@ -6,18 +6,21 @@ import 'react-native-reanimated';
 import { seedRealm } from '@/database/seedRealm';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
-  useEffect(() => {
-    (async () => {
-      try { await seedRealm(); }
-      catch (e) { console.error("Error seeding data: ", e); }
-    })();
-  }, []);
+  if(Platform.OS === 'web') {
+    useEffect(() => {
+      (async () => {
+        try { await seedRealm(); }
+        catch (e) { console.error("Error seeding data: ", e); }
+      })();
+    }, []);
+  }
 
   const colorScheme = useColorScheme();
 

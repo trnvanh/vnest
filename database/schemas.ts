@@ -71,3 +71,28 @@ export const AgentVerbPatient_Trio_Schema: ObjectSchema = {
         type:      { type: 'string', default: 'AgentVerbPatient_Trio' }
     }
 };
+
+type ApiCombination = {
+  id: number;
+  subject: { id: number; text: string };
+  verb: { id: number; text: string };
+  object: { id: number; text: string };
+  sentence: string;
+};
+
+export type ApiResponse = {
+  success: boolean;
+  data: ApiCombination[];
+};
+
+export function mapAVP_ApiToTrio(apiData: ApiResponse): AgentVerbPatient_Trio[] {
+    return apiData.data.map(item => ({
+        id:        item.id,
+        verbId:    item.verb.id,
+        agentId:   item.subject.id,
+        patientId: item.object.id,
+        isFitting: true,
+        type:      "AgentVerbPatient_Trio"
+
+    }));
+}

@@ -17,12 +17,18 @@
  * - AVP Trios: Valid combinations of Agent-Verb-Patient for sentence construction
  */
 
-import { agentController } from '@/controllers/AgentController';
-import { avpTrioController } from '@/controllers/AVPTrioController';
-import { patientController } from '@/controllers/PatientController';
-import { verbController } from '@/controllers/VerbController';
+import { avpTrioController_api } from '@/controllers/api_controllers/AVPTrioController';
+import { IAVPTrioController } from '@/controllers/interfaces/IAVPTrioController';
+import { agentController } from '@/controllers/realm_controllers/AgentController';
+import { avpTrioController_realm } from '@/controllers/realm_controllers/AVPTrioController';
+import { patientController } from '@/controllers/realm_controllers/PatientController';
+import { verbController } from '@/controllers/realm_controllers/VerbController';
 import { Agent, Patient, Verb } from '@/database/schemas';
+import { Platform } from 'react-native';
 import { avpService } from './avpService';
+
+const avpTrioController: IAVPTrioController = 
+    Platform.OS === 'web' ? avpTrioController_api : avpTrioController_realm;
 
 /**
  * Structure for word data used in Finnish language exercises
