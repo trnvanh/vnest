@@ -1,4 +1,4 @@
-import { Patient } from '../database/schemas';
+import { Patient } from '../../database/schemas';
 import { BaseController } from './BaseController';
 
 export class PatientController extends BaseController<Patient> {

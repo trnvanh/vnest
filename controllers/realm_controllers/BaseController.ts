@@ -1,4 +1,5 @@
 import { getRealm } from "@/database/realm";
+import { IBaseController } from "../interfaces/IBaseController";
 
 /**
  * Base controller for data management
@@ -8,7 +9,7 @@ import { getRealm } from "@/database/realm";
  * 
  * Each concrete controller specifies its schema name.
  */
-export abstract class BaseController<T> {
+export abstract class BaseController<T> implements IBaseController<T> {
     abstract schemaName: string;   // Database collection/table name
 
     /**
