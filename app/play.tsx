@@ -63,13 +63,17 @@ export default function PlayScreen() {
 
   // Initialize data on component mount
   useEffect(() => {
-    console.log('Play screen mounted, loading data...');
-    loadWords()
-  },[]);
+  if (wordData && wordData.currentVerb) {
+    console.log('wordData loaded, populating verbs, subjects, objects');
+    setVerbs([wordData.currentVerb]);
+    setSubjects(wordData.subjects);
+    setObjects(wordData.objects);
+  }
+}, [wordData]);
   useEffect(() => {
     if (wordData && selectedSubject && selectedObject && wordData.currentVerb) {
       const timer = setTimeout(async () => {
-        const isCorrect = await avpService.IsCorrectCombination(selectedSubject, verbs[0], selectedObject);
+        const isCorrect = await avpService.isCorrectCombination(selectedSubject, verbs[0], selectedObject);
         setFeedback(isCorrect ? '✅ Hyvin tehty!' : '❌ Yritä uudelleen');
         
         // If correct, automatically move to next verb after a short delay
@@ -130,16 +134,6 @@ export default function PlayScreen() {
     setSelectedObject(null);
     setFeedback(null);
     setShowCongrats(false);
-  };
-
-  const loadWords = async () => {
-    const result = await avpService.GetWordsByVerbId(3);
-      if (!result) return;
-
-    const { verb, agents, patients } = result;
-    setVerbs([verb]);
-    setSubjects(agents);
-    setObjects(patients)
   };
 
   const handleNextSet = async () => {

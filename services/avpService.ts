@@ -12,39 +12,37 @@ const avpTrioController: IAVPTrioController =
     Platform.OS === 'web' ? avpTrioController_api : avpTrioController_realm;
 
 export const avpService = {
-    GetWordsByVerbId: async (id: number): Promise<WordBundle | null> => {
+    getWordBundleByVerbId: async (id: number | null): Promise<WordBundle | null> => {
+        if (id === null) return null;
         const verb = await verbController.getById(id);
         if (!verb) return null;
-
-        const [fitting] =      await avpTrioController.GetRandomByVerbIdAndFitting(id, true, 1);
-        const not_fitting =    await avpTrioController.GetRandomByVerbIdAndFitting(id, false, 2);
         
         // Filter out undefined values
-        const selected_trios = [fitting, ...not_fitting].filter(trio => trio !== undefined);
+        const trios = await avpTrioController.GetRandomByVerbId(id)
         
-        if (selected_trios.length === 0) {
+        if (trios.length === 0) {
             console.warn(`No AVP trio data found for verbId: ${id}`);
             return null;
         }
 
         const agents: Agent[] = await Promise.all(
-            selected_trios.map(async trio => {
+            trios.map(async trio => {
                 const agent = await agentController.getById(trio.agentId);
                 return agent!;
             })
         )
 
         const patients: Patient[] = await Promise.all(
-            selected_trios.map(async trio => {
+            trios.map(async trio => {
                 const patient = await patientController.getById(trio.patientId);
                 return patient!;
             })
         )
 
-        return { verb, agents, patients };
+        return { verb: verb, subjects: agents, objects: patients, pairings: trios };
     },
 
-    IsCorrectCombination: async (agent: Agent, verb: Verb, patient: Patient): Promise<boolean> => {
+    isCorrectCombination: async (agent: Agent, verb: Verb, patient: Patient): Promise<boolean> => {
         if (agent === null || verb === null || patient === null) return false;
         return avpTrioController.IsCorrentCombination(agent.id, verb.id, patient.id);
     }

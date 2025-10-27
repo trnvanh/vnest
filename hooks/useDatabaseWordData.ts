@@ -1,4 +1,6 @@
-import { databaseService, DatabaseWordData } from '@/services/databaseService';
+import { Agent, Patient, Verb } from '@/database/schemas';
+import { avpService } from '@/services/avpService';
+import { databaseService, DatabaseWordData } from '@/services/exerciseManagementService';
 import { useCallback, useEffect, useState } from 'react';
 
 export interface UseDatabaseWordDataReturn {
@@ -6,7 +8,7 @@ export interface UseDatabaseWordDataReturn {
   isLoading: boolean;
   error: string | null;
   refreshData: () => Promise<void>;
-  isCorrectCombination: (subject: string, verb: string, object: string) => Promise<boolean>;
+  isCorrectCombination: (subject: Agent, verb: Verb, object: Patient) => Promise<boolean>;
   nextVerb: () => Promise<void>;
   randomVerb: () => Promise<void>;
   setCurrentSet: (setId: number) => Promise<void>;
@@ -23,7 +25,6 @@ export function useDatabaseWordData(): UseDatabaseWordDataReturn {
       setIsLoading(true);
       setError(null);
       
-      await databaseService.initialize();
       await refreshData();
       
     } catch (err) {
@@ -46,9 +47,9 @@ export function useDatabaseWordData(): UseDatabaseWordDataReturn {
   }, []);
 
   // Check if a combination is correct
-  const isCorrectCombination = useCallback(async (subject: string, verb: string, object: string): Promise<boolean> => {
+  const isCorrectCombination = useCallback(async (subject: Agent, verb: Verb, object: Patient): Promise<boolean> => {
     try {
-      return await databaseService.isCorrectCombination(subject, verb, object);
+      return await avpService.isCorrectCombination(subject, verb, object);
     } catch (err) {
       console.error('Error checking combination:', err);
       return false;
@@ -73,7 +74,7 @@ export function useDatabaseWordData(): UseDatabaseWordDataReturn {
   const randomVerb = useCallback(async () => {
     try {
       setIsLoading(true);
-      await databaseService.getRandomVerb();
+      await databaseService.getNextVerb();
       await refreshData();
     } catch (err) {
       console.error('Error getting random verb:', err);
@@ -87,7 +88,7 @@ export function useDatabaseWordData(): UseDatabaseWordDataReturn {
   const setCurrentSet = useCallback(async (setId: number) => {
     try {
       setIsLoading(true);
-      await databaseService.setCurrentSet(setId);
+      await databaseService.setCurrentGroup(setId);
       await refreshData();
     } catch (err) {
       console.error('Error setting current set:', err);

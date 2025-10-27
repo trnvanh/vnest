@@ -11,11 +11,6 @@ export class AVPTrioController extends BaseController<AgentVerbPatient_Trio> imp
         return all.filter(e => e.verbId == verbId);
     }
 
-    private getRandomElements<T>(array: T[], count: number): T[] {
-        const shuffled = [...array].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, count);
-    }
-
     /**
      * Retrieves random Agent-Verb-Patient combinations for a specific verb
      * 
@@ -24,14 +19,12 @@ export class AVPTrioController extends BaseController<AgentVerbPatient_Trio> imp
      * @param count - Number of combinations to return (default: 1)
      * @returns Promise<AgentVerbPatient_Trio[]> - Array of matching combinations
      */
-    async GetRandomByVerbIdAndFitting(
+    async GetRandomByVerbId(
         verbId:    number,
-        isFitting: boolean,
-        count:     number = 1
+        count:     number = 3
     ): Promise<AgentVerbPatient_Trio[]> {
         const all = await this.getAllByVerbId(verbId);
-        const filtered = all.filter(e => e.isFitting === isFitting);
-        return this.getRandomElements(filtered, count)
+        return this.getRandomElements(all, count)
     }
 
     async IsCorrentCombination(

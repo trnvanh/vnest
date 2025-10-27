@@ -17,7 +17,7 @@ export class AVPTrioController implements IAVPTrioController {
         return mapAVP_ApiToTrio(apiResult);
     }
 
-    async GetRandomByVerbIdAndFitting(verbId: number, isFitting: boolean, count?: number): Promise<AgentVerbPatient_Trio[]> {
+    async GetRandomByVerbId(verbId: number, count?: number): Promise<AgentVerbPatient_Trio[]> {
         const allTrios =     await this.getAll();
         const allVerbTrios = allTrios.filter(trio => trio.verbId === verbId);
         const shuffled =     [...allVerbTrios].sort(() => Math.random() - 0.5);
