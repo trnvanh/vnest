@@ -1,7 +1,8 @@
 import { Verb } from '../../database/schemas';
+import { IVerbController } from '../interfaces/IVerbController';
 import { BaseController } from './BaseController';
 
-export class VerbController extends BaseController<Verb> {
+export class VerbController extends BaseController<Verb> implements IVerbController {
     schemaName =   'Verb';
     jsonFileName = 'verbs';
 
