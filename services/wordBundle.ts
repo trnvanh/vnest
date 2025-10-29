@@ -1,7 +1,8 @@
-import { Agent, Patient, Verb } from "@/database/schemas";
+import { Agent, AgentVerbPatient_Trio, Patient, Verb } from "@/database/schemas";
 
 export interface WordBundle {
-    verb: Verb;
-    agents: Agent[];
-    patients: Patient[];
+    verb: Verb | null;
+    subjects: Agent[] | null;
+    objects: Patient[] | null;
+    pairings: AgentVerbPatient_Trio[] | null;
 }

@@ -1,8 +1,9 @@
 import { ObjectSchema } from 'realm';
 
 export type Verb = {
-    id:    number;
-    value: string;
+    id:      number;
+    value:   string;
+    groupId: number;
     readonly type: "Verb";
 };
 
@@ -33,9 +34,10 @@ export const VerbSchema: ObjectSchema = {
     name:       'Verb',
     primaryKey: 'id',
     properties: {
-        id:     'int',
-        value:  'string',
-        type:   { type: 'string', default: 'Verb' }
+        id:      'int',
+        value:   'string',
+        groupId: { type: 'int', default: 0},
+        type:    { type: 'string', default: 'Verb' }
     }
 };
 
@@ -67,7 +69,6 @@ export const AgentVerbPatient_Trio_Schema: ObjectSchema = {
         agentId:   'int',
         verbId:    'int',
         patientId: 'int',
-        isFitting: 'bool',
         type:      { type: 'string', default: 'AgentVerbPatient_Trio' }
     }
 };
