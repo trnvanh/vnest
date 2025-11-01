@@ -18,4 +18,4 @@ export class AgentController extends BaseController<Agent> implements ISubjectOb
     }
 }
 
-export const agentController = new AgentController();
+export const agentController_realm = new AgentController();

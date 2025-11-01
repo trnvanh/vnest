@@ -8,7 +8,7 @@ export class VerbController extends BaseController<Verb> implements IVerbControl
 
     async getRandomVerb(): Promise<Verb> {
         const all = await this.getAll();
-        return await this.getRandomElements(all, 1)[0]
+        return this.getRandomElements(all, 1)[0]
     }
 
     async getAllVerbsByGroupId(groupId: number): Promise<Verb[]> {
@@ -19,4 +19,4 @@ export class VerbController extends BaseController<Verb> implements IVerbControl
     }
 }
 
-export const verbController = new VerbController();
+export const verbController_realm = new VerbController();

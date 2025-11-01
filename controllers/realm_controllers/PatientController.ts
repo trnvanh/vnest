@@ -18,4 +18,4 @@ export class PatientController extends BaseController<Patient> implements ISubje
         }
 }
 
-export const patientController = new PatientController();
+export const patientController_realm = new PatientController();

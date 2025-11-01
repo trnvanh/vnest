@@ -3,19 +3,20 @@ import { ApiResponse, ApiWord, mapAPIWord_UIWord, Word } from "@/database/schema
 import { IBaseController } from "../interfaces/IBaseController";
 
 export abstract class BaseController<T extends Word> implements IBaseController<T> {
-    constructor(private type: "SUBJECT" | "VERB" | "OBJECT") {}
+    constructor(private type: "Agent" | "Verb" | "Patient", private API_type: "SUBJECT" | "VERB" | "OBJECT") {}
 
-    getRandomElements<T>(array: T[], count: number): T[] {
+    protected getRandomElements<T>(array: T[], count: number): T[] {
         const shuffled = [...array].sort(() => Math.random() - 0.5);
         return shuffled.slice(0, count);
     }
 
     async getById(id: number): Promise<T | null> {
-        
+        const all = await this.getAll();
+        return all.find(e => e.id === id) ?? null;
     }
 
     async getAll(): Promise<T[]> {
-        const res = await fetch(`${API_URL}/api/words?type=${this.type}`, {
+        const res = await fetch(`${API_URL}/api/words?type=${this.API_type}`, {
              method: 'GET'
         });
         if (!res.ok) return [];

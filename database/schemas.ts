@@ -115,7 +115,7 @@ export function mapAPIWord_UIWord (apiData: ApiResponse<ApiWord>):  Word[] {
                 return {
                     id: item.id,
                     value: item.text,
-                    groupId: item.group_id ?? -1,
+                    groupId: item.group_id ?? 0,
                     type: "Verb"
                 };
             case "SUBJECT":
