@@ -25,7 +25,6 @@ export function useDatabaseWordData(): UseDatabaseWordDataReturn {
       setIsLoading(true);
       setError(null);
 
-      console.log("Here 1")
       await databaseService.ensureInitialized();
       
       await refreshData();
